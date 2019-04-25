@@ -1,0 +1,36 @@
+<project>
+
+    <target name="clean">
+        <delete includeemptydirs="true">
+			<fileset dir="build" includes="**/*"/>
+		</delete>
+        <delete includeemptydirs="true">
+			<fileset dir="dest" includes="**/*"/>
+		</delete>
+        <delete includeemptydirs="true">
+			<fileset dir="doc" includes="**/*"/>
+		</delete>
+    </target>
+
+    <target name="compile">
+        <javac srcdir="src" destdir="build"/>
+        <jar destfile="dest/ija2015-client.jar" basedir="build">
+            <manifest>
+                <attribute name="Main-Class" value="ija.Game"/>
+            </manifest>
+            <fileset dir="lib">
+                <include name="resources/**" />
+           </fileset>
+        </jar>
+        <javadoc packagenames="ija" sourcepath="src/ija" destdir="doc">
+       		<fileset dir="src/ija">
+                <include name="**" />
+           </fileset>
+    	</javadoc>
+    </target>
+
+    <target name="run">
+        <java jar="dest/ija2015-client.jar" fork="true"/>
+    </target>
+
+</project>

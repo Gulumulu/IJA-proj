@@ -1,36 +1,24 @@
-<project>
+<project name="IJA-proj">
 
     <target name="clean">
         <delete includeemptydirs="true">
-			<fileset dir="build" includes="**/*"/>
-		</delete>
-        <delete includeemptydirs="true">
-			<fileset dir="dest" includes="**/*"/>
-		</delete>
-        <delete includeemptydirs="true">
-			<fileset dir="doc" includes="**/*"/>
-		</delete>
+            <fileset dir="build" includes="**/*"/>
+            <fileset dir="dest" includes="**/*"/>
+            <fileset dir="doc" includes="**/*"/>
+        </delete>
     </target>
 
     <target name="compile">
-        <javac srcdir="src" destdir="build"/>
-        <jar destfile="dest/ija2015-client.jar" basedir="build">
+        <javac srcdir="src" destdir="build" includeantruntime="false"/>
+        <jar destfile="dest/ija-proj.jar" basedir="build">
             <manifest>
-                <attribute name="Main-Class" value="ija.Game"/>
+                <attribute name="Main-Class" value="ija.Chess"/>
             </manifest>
-            <fileset dir="lib">
-                <include name="resources/**" />
-           </fileset>
         </jar>
-        <javadoc packagenames="ija" sourcepath="src/ija" destdir="doc">
-       		<fileset dir="src/ija">
-                <include name="**" />
-           </fileset>
-    	</javadoc>
     </target>
 
     <target name="run">
-        <java jar="dest/ija2015-client.jar" fork="true"/>
+        <java jar="dest/ija-proj.jar" fork="true"/>
     </target>
 
 </project>

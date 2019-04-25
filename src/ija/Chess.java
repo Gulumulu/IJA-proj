@@ -1,6 +1,6 @@
 package ija;
 
-import ija.gui.MenuScreen;
+import ija.gui.TopBar;
 import javafx.application.Application;
 
 /**
@@ -11,8 +11,8 @@ import javafx.application.Application;
 public class Chess {
 
     public static void main(String[] args) {
-        MenuScreen menu = new MenuScreen();
-        Application.launch(MenuScreen.class, args);
+        TopBar menu = new TopBar();
+        Application.launch(TopBar.class, args);
     }
 
 }

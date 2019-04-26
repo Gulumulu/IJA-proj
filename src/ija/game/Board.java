@@ -1,16 +1,16 @@
-package ija.board;
+package ija.game;
 
 public class Board {
 
-    private int size; // dimension of the board (size x size)
+    private int size; // dimension of the game (size x size)
     private Field[][] field; // 2-dimensional array of the Fields
 
     /**
-     * Initializing the board
-     * Sets the dimension of the board and fills it with empty fields
+     * Initializing the game
+     * Sets the dimension of the game and fills it with empty fields
      * Also sets the neighbouring fields for each field
      *
-     * @param size one dimension of the board (board is size x size)
+     * @param size one dimension of the game (game is size x size)
      */
     public Board(int size) {
         this.size = size;
@@ -51,9 +51,9 @@ public class Board {
     }
 
     /**
-     * Finds out the dimension of the board
+     * Finds out the dimension of the game
      *
-     * @return one dimension of the board
+     * @return one dimension of the game
      */
     public int getSize() {
         return this.size;

@@ -1,4 +1,4 @@
-package ija.board;
+package ija.game;
 
 import ija.figures.Figure;
 
@@ -14,8 +14,8 @@ public class BoardField implements Field {
      * Sets the figure to null (field has no figure on it at the moment)
      * Creates an array for the neighboring fields
      *
-     * @param col the column of the board on which the field is located
-     * @param row the row of the board on which the field is located
+     * @param col the column of the game on which the field is located
+     * @param row the row of the game on which the field is located
      */
     public BoardField(int col, int row) {
         this.col = col;

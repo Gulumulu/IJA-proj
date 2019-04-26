@@ -27,6 +27,12 @@ public class Tower implements Figure {
         return isWhite;
     }
 
+    /**
+     * Update the location of the tower
+     *
+     * @param col the new col number
+     * @param row the new row number
+     */
     public void updateState(int col, int row) {
         this.col = col;
         this.row = row;

@@ -5,7 +5,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 
 /**
- * The interface of a single game of Chess
+ * The interface of a single game of Game
  */
 public class GameGUI extends Pane {
 

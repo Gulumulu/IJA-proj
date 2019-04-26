@@ -12,7 +12,7 @@
         <javac srcdir="src" destdir="build" includeantruntime="false"/>
         <jar destfile="dest/ija-proj.jar" basedir="build">
             <manifest>
-                <attribute name="Main-Class" value="ija.Chess"/>
+                <attribute name="Main-Class" value="ija.Game"/>
             </manifest>
         </jar>
     </target>

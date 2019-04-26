@@ -1,14 +1,14 @@
-package ija.board;
+package ija.game;
 
 import ija.figures.Figure;
 
 /**
- * Interface of a space on the board
+ * Interface of a space on the game
  */
 public interface Field {
 
     /**
-     * The directions on the board
+     * The directions on the game
      */
     public static enum Direction {
         U,

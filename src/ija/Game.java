@@ -8,7 +8,7 @@ import javafx.application.Application;
  *
  * @author xquirs00 Gabriel Quirschfeld
  */
-public class Chess {
+public class Game {
 
     public static void main(String[] args) {
         TopBar menu = new TopBar();

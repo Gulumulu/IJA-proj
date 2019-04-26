@@ -51,7 +51,7 @@ public class King {
         else {
             colour = "B";
         }
-        return "P[" + colour + "]" + this.col + ":" + this.row;
+        return "K[" + colour + "]" + this.col + ":" + this.row;
     }
 
 }

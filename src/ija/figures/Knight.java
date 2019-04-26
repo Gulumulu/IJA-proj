@@ -51,7 +51,7 @@ public class Knight {
         else {
             colour = "B";
         }
-        return "P[" + colour + "]" + this.col + ":" + this.row;
+        return "J[" + colour + "]" + this.col + ":" + this.row;
     }
 
 }

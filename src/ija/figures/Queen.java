@@ -51,7 +51,7 @@ public class Queen {
         else {
             colour = "B";
         }
-        return "P[" + colour + "]" + this.col + ":" + this.row;
+        return "D[" + colour + "]" + this.col + ":" + this.row;
     }
 
 }

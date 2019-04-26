@@ -51,7 +51,7 @@ public class Bishop {
         else {
             colour = "B";
         }
-        return "P[" + colour + "]" + this.col + ":" + this.row;
+        return "S[" + colour + "]" + this.col + ":" + this.row;
     }
 
 }

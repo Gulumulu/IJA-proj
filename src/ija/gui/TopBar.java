@@ -1,39 +1,63 @@
 package ija.gui;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-public class TopBar extends Application {
+/**
+ * The class defines the top bar of the GUI and allows for creation of new chess games in the bottom part
+ */
+public class TopBar extends Application implements EventHandler<ActionEvent> {
 
-    Button newGameButton;
-    Button loadGameButton;
-    Button saveGameButton;
-    Label appName;
+    private Button newGameButton;
+    private Button loadGameButton;
+    private Button saveGameButton;
+    private Label appName;
+    private SplitPane split;
+    private Pane topPanel;
+    private TabPane bottomPanel;
+    private Scene scene;
+    private int tabCount;
 
+    /**
+     * Class constructor, sets the tab counter to 0
+     */
     public TopBar() {
-
+        tabCount = 0;
     }
 
-    private void configButtons(Button button, int width) {
+    /**
+     * Method for configuring the buttons present on the top bar
+     *
+     * @param button the button to configure
+     * @param width the Y coordinate at which the button should be located
+     */
+    private void configButtons(Button button, double width) {
         button.setPrefSize(150, 80);
         button.setLayoutX(width);
         button.setLayoutY(10);
+        button.setOnAction(this);
     }
 
+    /**
+     * Method starts the GUI of the application
+     *
+     * @param primaryStage the window of the application
+     * @throws Exception if any exception is present, detect it
+     */
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("CHESS GAME for IJA");
 
-        SplitPane split = new SplitPane();
-        Pane topPanel = new Pane();
-        Pane bottomPanel = new Pane();
+        split = new SplitPane();
+        topPanel = new Pane();
+        bottomPanel = new TabPane();
 
         split.setOrientation(Orientation.VERTICAL);
         split.setPrefWidth(1200);
@@ -57,12 +81,33 @@ public class TopBar extends Application {
         configButtons(newGameButton, 600);
         configButtons(loadGameButton, 800);
         configButtons(saveGameButton, 1000);
+
         appName.setFont(new Font("Arial", 60));
         appName.setLayoutX(50);
         appName.setLayoutY(10);
 
-        Scene scene = new Scene(split);
+        scene = new Scene(split);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    /**
+     * Handling button clicks
+     *
+     * @param event click of the button
+     */
+    @Override
+    public void handle(ActionEvent event) {
+        if (event.getSource() == newGameButton) {
+            this.tabCount++;
+            Tab tab = new Tab("Game " + tabCount);
+            GameGUI game = new GameGUI();
+            game.createUI(tab);
+            bottomPanel.getTabs().add(tab);
+        } else if (event.getSource() == loadGameButton) {
+            System.out.println("load");
+        } else if (event.getSource() == saveGameButton) {
+            System.out.println("save");
+        }
     }
 }

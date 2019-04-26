@@ -11,6 +11,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,8 @@ public class GameGUI extends Pane {
     private RadioButton modeManual;
     private ToggleGroup buttonGroup;
     private Rectangle boardField;
+    private Label boardID;
+    private Image images;
 
     public GameGUI() {
 
@@ -39,34 +42,55 @@ public class GameGUI extends Pane {
     }
 
     private void createBoard() {
-        for (int col = 0; col < 8; col++) {
-            for (int row = 0; row < 8; row++) {
-                boardField = new Rectangle();
+        char c = 'A';
+        for (int col = 0; col <= 8; col++) {
+            for (int row = 0; row <= 8; row++) {
+                if (row == 0 && col < 8) {
+                    String id = String.valueOf(col + 1);
+                    boardID = new Label(id);
+                    boardID.setFont(Font.font(22));
+                    boardID.setLayoutX(75);
+                    boardID.setLayoutY(65 + (col + 1) * 60);
+                    layout.getChildren().add(boardID);
 
-                boardField.setWidth(70);
-                boardField.setHeight(70);
-                boardField.setX(col * 70 + 50);
-                boardField.setY(row * 70 + 50);
-                boardField.setStroke(Color.TRANSPARENT);
-                boardField.setStrokeType(StrokeType.INSIDE);
-                boardField.setStrokeWidth(1);
+                } else if (col == 0) {
+                    String id = String.valueOf(c);
+                    boardID = new Label(id);
+                    boardID.setFont(Font.font(22));
+                    boardID.setLayoutX(70 + row * 60);
+                    boardID.setLayoutY(75);
+                    layout.getChildren().add(boardID);
+                    c++;
+                } else if (col != 0 && row != 0) {
+                    boardField = new Rectangle();
+                    boardField.setWidth(60);
+                    boardField.setHeight(60);
+                    boardField.setX(col * 60 + 50);
+                    boardField.setY(row * 60 + 50);
+                    boardField.setStroke(Color.TRANSPARENT);
+                    boardField.setStrokeType(StrokeType.INSIDE);
+                    boardField.setStrokeWidth(1);
 
-                if (col % 2 == 0 && row % 2 == 1) {
-                    boardField.setFill(Color.WHITE);
+                    if (col % 2 == 0 && row % 2 == 1) {
+                        boardField.setFill(Color.BLACK);
+                    }
+                    else if (col % 2 == 0 && row % 2 == 0) {
+                        boardField.setFill(Color.WHITE);
+                    }
+                    else if (col % 2 == 1 && row % 2 == 1) {
+                        boardField.setFill(Color.WHITE);
+                    }
+                    else if (col % 2 == 1 && row % 2 == 0) {
+                        boardField.setFill(Color.BLACK);
+                    }
+                    layout.getChildren().add(boardField);
                 }
-                else if (col % 2 == 0 && row % 2 == 0) {
-                    boardField.setFill(Color.BLACK);
-                }
-                else if (col % 2 == 1 && row % 2 == 1) {
-                    boardField.setFill(Color.BLACK);
-                }
-                else if (col % 2 == 1 && row % 2 == 0) {
-                    boardField.setFill(Color.WHITE);
-                }
-
-                layout.getChildren().add(boardField);
             }
         }
+    }
+
+    public void initializeImages() {
+
     }
 
     public void createUI(Tab parent) {

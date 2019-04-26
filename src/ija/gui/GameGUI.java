@@ -70,7 +70,6 @@ public class GameGUI extends Pane {
                     boardField.setStroke(Color.TRANSPARENT);
                     boardField.setStrokeType(StrokeType.INSIDE);
                     boardField.setStrokeWidth(1);
-
                     if (col % 2 == 0 && row % 2 == 1) {
                         boardField.setFill(Color.BLACK);
                     }

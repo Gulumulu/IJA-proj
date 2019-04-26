@@ -8,7 +8,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import java.io.File;
 
 /**
  * The class defines the top bar of the GUI and allows for creation of new chess games in the bottom part
@@ -99,15 +102,26 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent event) {
         if (event.getSource() == newGameButton) {
-            this.tabCount++;
-            Tab tab = new Tab("Game " + tabCount);
-            GameGUI game = new GameGUI();
-            game.createUI(tab);
-            bottomPanel.getTabs().add(tab);
+            createTab();
         } else if (event.getSource() == loadGameButton) {
-            System.out.println("load");
+            loadFile();
         } else if (event.getSource() == saveGameButton) {
             System.out.println("save");
         }
+    }
+
+    private void loadFile() {
+        FileChooser fc = new FileChooser();
+        File selectedFile = fc.showOpenDialog(null);
+        createTab();
+    }
+
+    private void createTab() {
+        this.tabCount++;
+        Tab tab = new Tab("Game " + tabCount);
+        GameGUI game = new GameGUI();
+        game.createUI(tab);
+        bottomPanel.getTabs().add(tab);
+        bottomPanel.getSelectionModel().select(tab);
     }
 }

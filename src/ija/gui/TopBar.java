@@ -133,7 +133,15 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
     private void loadFile() {
         FileChooser fc = new FileChooser();
         File selectedFile = fc.showOpenDialog(null);
-        createTab();
+        if (selectedFile.getName().matches("^.*.save$")) {
+            createTab();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error!");
+            alert.setHeaderText("Error while opening a save file!");
+            alert.setContentText("Save files are in a .save format.");
+            alert.showAndWait();
+        }
     }
 
     /**

@@ -4,9 +4,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -199,9 +201,29 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         moveLog = new TextArea();
         moveLog.setLayoutX(800);
         moveLog.setLayoutY(250);
-        moveLog.setPrefWidth(450);
-        moveLog.setPrefHeight(350);
-        moveLog.setDisable(true);
+        moveLog.setPrefWidth(350);
+        moveLog.setPrefHeight(370);
+
+        moveLog.setOnMouseClicked(evt -> {
+            if (evt.getButton() == MouseButton.PRIMARY) {
+                Node node = evt.getPickResult().getIntersectedNode();
+                while (node != moveLog) {
+                    if (node.getStyleClass().contains("content")) {
+                        int caretPosition = moveLog.getCaretPosition();
+                        String text = moveLog.getText();
+                        int break1 = text.lastIndexOf('\n', caretPosition - 1);
+                        int break2 = text.indexOf('\n', caretPosition);
+                        if (break2 < 0) {
+                            break2 = text.length();
+                        }
+                        moveLog.selectRange(break1, break2);
+                        evt.consume();
+                        break;
+                    }
+                    node = node.getParent();
+                }
+            }
+        });
 
         buttonText = new Label("Select game mode:");
         buttonText.setFont(Font.font(22));

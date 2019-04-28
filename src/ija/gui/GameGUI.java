@@ -1,10 +1,10 @@
 package ija.gui;
 
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.Tab;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -12,23 +12,26 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
-import javafx.scene.transform.Translate;
 
 
 /**
  * The interface of a single game of Chess
  */
-public class GameGUI extends Pane {
+public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
-    private Translate pos;
     private Pane layout;
     private Label buttonText;
     private TextArea moveLog;
     private RadioButton modeAuto;
     private RadioButton modeManual;
     private ToggleGroup buttonGroup;
-    private Rectangle[][] boardField;
+    private Button restartGame;
+    private Button stepBack;
+    private Button stepForward;
+    private Label speedText;
+    private TextField speedInput;
     private Label boardID;
+    private Rectangle[][] boardField;
     private Image[][] images;
     private ImageView[][] imageView;
 
@@ -36,11 +39,19 @@ public class GameGUI extends Pane {
 
     }
 
-    public void configureRadioButtons(RadioButton button, double height, boolean selected) {
+    private void configureRadioButtons(RadioButton button, double height, boolean selected) {
         button.setToggleGroup(buttonGroup);
         button.setSelected(selected);
         button.setLayoutX(800);
         button.setLayoutY(height);
+        button.setOnAction(this);
+    }
+
+    private void configureButtons(Button button, double width, double height, double x, double y) {
+        button.setLayoutX(x);
+        button.setLayoutY(y);
+        button.setPrefSize(width,height);
+        button.setOnAction(this);
     }
 
     private void setPosLabels() {
@@ -53,7 +64,7 @@ public class GameGUI extends Pane {
                     boardID = new Label(id);
                     boardID.setFont(Font.font(22));
                     boardID.setLayoutX(15);
-                    boardID.setLayoutY((col + 1) * 70);
+                    boardID.setLayoutY((col + 1) * 70 + 5);
                     layout.getChildren().add(boardID);
                 } else if (col == 0) {
                     String id = String.valueOf(c);
@@ -160,23 +171,70 @@ public class GameGUI extends Pane {
         moveLog.setDisable(true);
 
         buttonText = new Label("Select game mode:");
-        buttonText.setFont(new Font("Arial", 22));
+        buttonText.setFont(Font.font(22));
         buttonText.setLayoutX(800);
-        buttonText.setLayoutY(160);
+        buttonText.setLayoutY(20);
 
         buttonGroup = new ToggleGroup();
 
         modeManual = new RadioButton("Manual Mode");
-        configureRadioButtons(modeManual, 195, true);
+        configureRadioButtons(modeManual, 60, true);
 
         modeAuto = new RadioButton("Automatic Mode");
-        configureRadioButtons(modeAuto, 220, false);
+        configureRadioButtons(modeAuto, 100, false);
 
-        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText);
+        buttonGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            @Override
+            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
+                if (buttonGroup.getSelectedToggle() == modeAuto) {
+                    speedInput.setEditable(true);
+                    stepBack.setDisable(true);
+                    stepForward.setDisable(true);
+                } else if (buttonGroup.getSelectedToggle() == modeManual) {
+                    speedInput.setEditable(false);
+                    speedInput.setText("");
+                    stepBack.setDisable(false);
+                    stepForward.setDisable(false);
+                }
+            }
+        });
+
+        restartGame = new Button("Restart Game");
+        configureButtons(restartGame, 125, 50, 800, 180);
+
+        stepBack = new Button("BACK");
+        configureButtons(stepBack, 100, 35, 950, 50);
+
+        stepForward = new Button("FORWARD");
+        configureButtons(stepForward, 100, 35, 1050, 50);
+
+        speedText = new Label("Step speed in MS: ");
+        speedText.setFont(Font.font(14));
+        speedText.setLayoutX(950);
+        speedText.setLayoutY(100);
+
+        speedInput = new TextField();
+        speedInput.setLayoutX(1080);
+        speedInput.setLayoutY(95);
+        speedInput.setPrefWidth(100);
+        speedInput.setEditable(false);
+
+        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward);
 
         createBoard();
         initializeImages();
 
         parent.setContent(layout);
+    }
+
+    @Override
+    public void handle(ActionEvent event) {
+        if (event.getSource() == restartGame) {
+            initializeImages();
+        } else if (event.getSource() == stepForward) {
+
+        } else if (event.getSource() == stepBack) {
+            
+        }
     }
 }

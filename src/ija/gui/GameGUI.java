@@ -35,10 +35,20 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private Image[][] images;
     private ImageView[][] imageView;
 
+    /**
+     * The constructor of the GameGUI class
+     */
     public GameGUI() {
 
     }
 
+    /**
+     * Method for configuring the radio buttons on the game ui
+     *
+     * @param button the radio button to configure
+     * @param height the desired X coordinate of the button
+     * @param selected the default state of the button (selected or not)
+     */
     private void configureRadioButtons(RadioButton button, double height, boolean selected) {
         button.setToggleGroup(buttonGroup);
         button.setSelected(selected);
@@ -47,6 +57,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         button.setOnAction(this);
     }
 
+    /**
+     * Method for configuring the buttons present on the game ui
+     *
+     * @param button the button to configure
+     * @param width the desired width of the button
+     * @param height the desired height of the button
+     * @param x the X coordinate of the button
+     * @param y the Y coordinate of the button
+     */
     private void configureButtons(Button button, double width, double height, double x, double y) {
         button.setLayoutX(x);
         button.setLayoutY(y);
@@ -54,6 +73,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         button.setOnAction(this);
     }
 
+    /**
+     * Method displays the labels with numbers of rows and letters of cols of the chess board
+     */
     private void setPosLabels() {
         char c = 'A';
 
@@ -79,6 +101,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         }
     }
 
+    /**
+     * Method for creating the chess board using rectangles
+     */
     private void createBoard() {
         setPosLabels();
 
@@ -112,6 +137,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         }
     }
 
+    /**
+     * Method for loading and displaying the chess pieces onto the board in their default positions
+     */
     private void initializeImages() {
         images = new Image[8][8];
         imageView = new ImageView[8][8];
@@ -160,6 +188,11 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         }
     }
 
+    /**
+     * Method creates the UI for the game including the controls and the chess board
+     *
+     * @param parent the tab the ui is supposed to be on
+     */
     public void createUI(Tab parent) {
         layout = new Pane();
 
@@ -227,6 +260,10 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         parent.setContent(layout);
     }
 
+    /**
+     * The click handler for the buttons on the game UI
+     * @param event the click of the button
+     */
     @Override
     public void handle(ActionEvent event) {
         if (event.getSource() == restartGame) {
@@ -234,7 +271,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         } else if (event.getSource() == stepForward) {
 
         } else if (event.getSource() == stepBack) {
-            
+
         }
     }
 }

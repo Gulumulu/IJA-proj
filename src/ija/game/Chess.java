@@ -4,7 +4,7 @@ import ija.figures.*;
 
 import java.util.Stack;
 
-public class Chess{
+public class Chess {
 
     private Board board;
     private Stack<Board> prevBoards;

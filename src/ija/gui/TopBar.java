@@ -6,6 +6,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -26,6 +28,9 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
     private Pane topPanel;
     private TabPane bottomPanel;
     private Scene scene;
+    private Image logo;
+    private ImageView logoView;
+
     private int tabCount;
 
     /**
@@ -79,15 +84,27 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
 
         appName = new Label("CHESS");
 
-        topPanel.getChildren().addAll(appName, newGameButton, loadGameButton, saveGameButton);
-
         configButtons(newGameButton, 600);
         configButtons(loadGameButton, 800);
         configButtons(saveGameButton, 1000);
 
-        appName.setFont(new Font("Arial", 60));
+        appName.setFont(Font.font(60));
         appName.setLayoutX(50);
         appName.setLayoutY(10);
+
+        logo = new Image("file:lib/res/main_ui.png");
+
+        logoView = new ImageView();
+        logoView.setImage(logo);
+        logoView.setFitHeight(100);
+        logoView.setFitWidth(200);
+        logoView.setPreserveRatio(true);
+        logoView.setSmooth(true);
+        logoView.setCache(true);
+        logoView.setX(250);
+        logoView.setY(10);
+
+        topPanel.getChildren().addAll(appName, newGameButton, loadGameButton, saveGameButton, logoView);
 
         scene = new Scene(split);
         primaryStage.setScene(scene);
@@ -110,12 +127,18 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
         }
     }
 
+    /**
+     * Method for loading the file when the load button was clicked
+     */
     private void loadFile() {
         FileChooser fc = new FileChooser();
         File selectedFile = fc.showOpenDialog(null);
         createTab();
     }
 
+    /**
+     * Method for opening a new game tab with either a new game or a loaded game
+     */
     private void createTab() {
         this.tabCount++;
         Tab tab = new Tab("Game " + tabCount);

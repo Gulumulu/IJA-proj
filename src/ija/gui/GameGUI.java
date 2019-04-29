@@ -33,6 +33,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private RadioButton modeAuto;
     private RadioButton modeManual;
     private ToggleGroup buttonGroup;
+    private RadioButton shortNotation;
+    private RadioButton longNotation;
+    private ToggleGroup notation;
     private Button restartGame;
     private Button stepBack;
     private Button stepForward;
@@ -62,13 +65,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
      * Method for configuring the radio buttons on the game ui
      *
      * @param button the radio button to configure
-     * @param height the desired X coordinate of the button
+     * @param height the desired Y coordinate of the button
+     * @param width the desired X coordinate of the button
      * @param selected the default state of the button (selected or not)
+     * @param group the group the radio button belongs to
      */
-    private void configureRadioButtons(RadioButton button, double height, boolean selected) {
-        button.setToggleGroup(buttonGroup);
+    private void configureRadioButtons(RadioButton button, double height, double width, boolean selected, ToggleGroup group) {
+        button.setToggleGroup(group);
         button.setSelected(selected);
-        button.setLayoutX(800);
+        button.setLayoutX(width);
         button.setLayoutY(height);
         button.setOnAction(this);
     }
@@ -85,7 +90,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private void configureButtons(Button button, double width, double height, double x, double y) {
         button.setLayoutX(x);
         button.setLayoutY(y);
-        button.setPrefSize(width,height);
+        button.setPrefSize(width, height);
         button.setOnAction(this);
     }
 
@@ -226,7 +231,6 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     imageView[col][rowCount].setFitWidth(50);
                     imageView[col][rowCount].setPreserveRatio(true);
                     imageView[col][rowCount].setSmooth(true);
-                    imageView[col][rowCount].setCache(true);
                     imageView[col][rowCount].setX(col * 70 + 60);
                     imageView[col][rowCount].setY(row * 70 + 60);
                     imageView[col][rowCount].setOnMouseClicked(event -> {
@@ -238,6 +242,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     imageView[col][rowCount].setImage(empty);
                     imageView[col][rowCount].setFitHeight(70);
                     imageView[col][rowCount].setFitWidth(50);
+                    imageView[col][rowCount].setPreserveRatio(true);
+                    imageView[col][rowCount].setSmooth(true);
                     imageView[col][rowCount].setX(col * 70 + 60);
                     imageView[col][rowCount].setY(row * 70 + 60);
                     layout.getChildren().add(imageView[col][rowCount]);
@@ -343,13 +349,21 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private boolean moveFigureForward() {
         if (sourceField.get() instanceof Pawn) {
             currentField = chessGame.movePawn(sourceField, destField);
-            if (currentField == destField) {
-                boardField[sourceField.getColumn()][sourceField.getRow()].setStroke(Color.TRANSPARENT);
-                boardField[destField.getColumn()][destField.getRow()].setStroke(Color.TRANSPARENT);
+            Image tmp = imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].getImage();
+            imageView[currentField.getColumn() - 1][currentField.getRow() - 1].setImage(tmp);
+            imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].setImage(empty);
+            if (currentField != destField) {
+                boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+                sourceField = currentField;
+                boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
+                moveLog.setText("yeah");
+            } else {
+                boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
+                boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+                sourceField = null;
+                destField = null;
+                moveLog.setText("fuck");
             }
-            Image tmp = imageView[sourceField.getColumn()][sourceField.getRow()].getImage();
-            imageView[currentField.getColumn()][currentField.getRow()].setImage(tmp);
-            imageView[sourceField.getColumn()][sourceField.getRow()].setImage(empty);
         } else if (sourceField.get() instanceof Tower) {
             //chessGame.moveTower(sourceField, destField);
         }
@@ -410,10 +424,10 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         buttonGroup = new ToggleGroup();
 
         modeManual = new RadioButton("Manual Mode");
-        configureRadioButtons(modeManual, 60, true);
+        configureRadioButtons(modeManual, 60, 800,true, buttonGroup);
 
         modeAuto = new RadioButton("Automatic Mode");
-        configureRadioButtons(modeAuto, 100, false);
+        configureRadioButtons(modeAuto, 100, 800, false, buttonGroup);
 
         buttonGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             @Override
@@ -445,13 +459,21 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         speedText.setLayoutX(950);
         speedText.setLayoutY(100);
 
+        notation = new ToggleGroup();
+
+        shortNotation = new RadioButton("Short Output");
+        configureRadioButtons(shortNotation, 180, 1050, true, notation);
+
+        longNotation = new RadioButton("Long Output");
+        configureRadioButtons(longNotation, 210, 1050, false, notation);
+
         speedInput = new TextField();
         speedInput.setLayoutX(1080);
         speedInput.setLayoutY(95);
         speedInput.setPrefWidth(100);
         speedInput.setEditable(false);
 
-        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward);
+        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation);
 
         createBoard();
         initializeImages();
@@ -482,6 +504,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 alert.setContentText("You have to select source and destination first.");
                 alert.showAndWait();
             }
+            moveFigureForward();
         } else if (event.getSource() == stepBack) {
             if (sourceField != null && destField != null) {
                 moveFigureBack();

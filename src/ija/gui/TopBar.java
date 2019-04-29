@@ -2,6 +2,7 @@ package ija.gui;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -154,5 +155,13 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
         game.createUI(tab);
         bottomPanel.getTabs().add(tab);
         bottomPanel.getSelectionModel().select(tab);
+        tab.setOnCloseRequest(new EventHandler<Event>() {
+            @Override
+            public void handle(Event event) {
+                tabCount--;
+                int index = bottomPanel.getSelectionModel().getSelectedIndex();
+                bottomPanel.getSelectionModel().select(index - 1);
+            }
+        });
     }
 }

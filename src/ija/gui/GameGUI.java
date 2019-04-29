@@ -1,5 +1,7 @@
 package ija.gui;
 
+import ija.game.Board;
+import ija.game.Chess;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -9,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -36,6 +39,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private Rectangle[][] boardField;
     private Image[][] images;
     private ImageView[][] imageView;
+
+    private Board chessBoard;
+    private Chess chessGame;
 
     /**
      * The constructor of the GameGUI class
@@ -184,6 +190,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     imageView[col][row].setCache(true);
                     imageView[col][row].setX(col * 70 + 60);
                     imageView[col][row].setY(row * 70 + 60);
+                    imageView[col][row].setOnMouseClicked(event -> {
+                        
+                    });
                     layout.getChildren().add(imageView[col][row]);
                 }
             }
@@ -197,6 +206,10 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
      */
     public void createUI(Tab parent) {
         layout = new Pane();
+
+        chessBoard = new Board(8);
+
+        chessGame = new Chess(chessBoard);
 
         moveLog = new TextArea();
         moveLog.setLayoutX(800);

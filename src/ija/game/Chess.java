@@ -35,6 +35,13 @@ public class Chess {
     public boolean checkDestField(Field src, Field dest) {
         Figure figure = src.get();
 
+        // if the destination figure is the same color as the source figure
+        if (dest.get() != null) {
+            if ((figure.isWhite() && dest.get().isWhite()) || (!figure.isWhite() && !dest.get().isWhite())) {
+                return false;
+            }
+        }
+
         if (figure instanceof Pawn) {
             // if the pawn moves in a straight line
             if (src.getColumn() == dest.getColumn()) {
@@ -87,44 +94,7 @@ public class Chess {
                 return false;
             }
         } else if (figure instanceof Bishop) {
-            int colSub = src.getColumn() - dest.getColumn();
-            int rowSub = src.getRow() - dest.getRow();
-
-            int fromCol;
-            int toCol;
-            int fromRow;
-            int toRow;
-
-            // if the bishop is moving in a diagonal
-            if (Math.abs(colSub) - Math.abs(rowSub) == 0) {
-                // if the bishop is moving up
-                if (src.getRow() < dest.getRow()) {
-                    fromRow = src.getRow();
-                    toRow = dest.getRow();
-                }
-                // if the bishop is moving down
-                else if (src.getRow() < dest.getRow()) {
-                    fromRow = dest.getRow();
-                    toRow = src.getRow();
-                } else {
-                    return false;
-                }
-                // if the bishop is moving to the right
-                if (src.getColumn() < dest.getColumn()) {
-                    fromCol = src.getColumn();
-                    toCol = dest.getColumn();
-                }
-                // if the bishop is moving to the left
-                else if (src.getColumn() > dest.getColumn()) {
-                    fromCol = dest.getColumn();
-                    toCol = src.getColumn();
-                } else {
-                    return false;
-                }
-                if (!checkDiagonal(fromCol, toCol, fromRow, toRow)) {
-                    return false;
-                }
-            } else {
+            if (!checkBishop(src, dest)) {
                 return false;
             }
         } else if (figure instanceof Knight) {
@@ -167,56 +137,17 @@ public class Chess {
                 rowShort = true;
             }
 
-            if ((rowLong && colShort) || (rowShort && colLong)) {
-                // if the destination figure is the same color as the source figure
-                if (dest.get().isWhite() == src.get().isWhite()) {
-                    return false;
-                } else {
-                    return true;
-                }
-            } else {
+            if (!((rowLong && colShort) || (rowShort && colLong))) {
                 return false;
             }
+            return true;
         } else if (figure instanceof Tower) {
-            // if the tower moves is a column
-            if (src.getColumn() == dest.getColumn()) {
-                // if the tower is supposed to move up
-                if (src.getRow() < dest.getRow()) {
-                    if (!checkRowLine(src, dest)) {
-                        return false;
-                    }
-                }
-                // if the tower is supposed to move down
-                else if (src.getRow() > dest.getRow()) {
-                    if (!checkRowLine(dest, src)) {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            }
-            // if the tower moves in a row
-            else if (src.getRow() == dest.getRow()) {
-                // if the tower is supposed to move to the right
-                if (src.getColumn() < dest.getColumn()) {
-                    if (!checkColLine(src, dest)) {
-                        return false;
-                    }
-                }
-                // if the tower is supposed to move to the left
-                else if (src.getColumn() > dest.getColumn()) {
-                    if (!checkColLine(dest, src)) {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            } else {
+            if (!checkTower(src, dest)) {
                 return false;
             }
         } else if (figure instanceof King) {
-            boolean row;
-            boolean col;
+            boolean row = false;
+            boolean col = false;
 
             // if the king is moving up
             if (src.getRow() == dest.getRow() - 1) {
@@ -248,12 +179,108 @@ public class Chess {
                 col = false;
             }
 
-            if (src.get().isWhite() == dest.get().isWhite()) {
-                return false;
-            }
             return row && col;
         } else if (figure instanceof Queen) {
+            int colSub = src.getColumn() - dest.getColumn();
+            int rowSub = src.getRow() - dest.getRow();
 
+            if (Math.abs(colSub) - Math.abs(rowSub) == 0) {
+                if (!checkBishop(src, dest)) {
+                    return false;
+                }
+            } else if (src.getRow() == dest.getRow() || src.getColumn() == dest.getColumn()) {
+                if (!checkTower(src, dest)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean checkTower(Field src, Field dest) {
+        // if the tower moves is a column
+        if (src.getColumn() == dest.getColumn()) {
+            // if the tower is supposed to move up
+            if (src.getRow() < dest.getRow()) {
+                if (!checkRowLine(src, dest)) {
+                    return false;
+                }
+            }
+            // if the tower is supposed to move down
+            else if (src.getRow() > dest.getRow()) {
+                if (!checkRowLine(dest, src)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        // if the tower moves in a row
+        else if (src.getRow() == dest.getRow()) {
+            // if the tower is supposed to move to the right
+            if (src.getColumn() < dest.getColumn()) {
+                if (!checkColLine(src, dest)) {
+                    return false;
+                }
+            }
+            // if the tower is supposed to move to the left
+            else if (src.getColumn() > dest.getColumn()) {
+                if (!checkColLine(dest, src)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean checkBishop(Field src, Field dest) {
+        int colSub = src.getColumn() - dest.getColumn();
+        int rowSub = src.getRow() - dest.getRow();
+
+        int fromCol;
+        int toCol;
+        int fromRow;
+        int toRow;
+
+        // if the bishop is moving in a diagonal
+        if (Math.abs(colSub) - Math.abs(rowSub) == 0) {
+            // if the bishop is moving up
+            if (src.getRow() < dest.getRow()) {
+                fromRow = src.getRow();
+                toRow = dest.getRow();
+            }
+            // if the bishop is moving down
+            else if (src.getRow() < dest.getRow()) {
+                fromRow = dest.getRow();
+                toRow = src.getRow();
+            } else {
+                return false;
+            }
+            // if the bishop is moving to the right
+            if (src.getColumn() < dest.getColumn()) {
+                fromCol = src.getColumn();
+                toCol = dest.getColumn();
+            }
+            // if the bishop is moving to the left
+            else if (src.getColumn() > dest.getColumn()) {
+                fromCol = dest.getColumn();
+                toCol = src.getColumn();
+            } else {
+                return false;
+            }
+            if (!checkDiagonal(fromCol, toCol, fromRow, toRow)) {
+                return false;
+            }
+        } else {
+            return false;
         }
 
         return true;

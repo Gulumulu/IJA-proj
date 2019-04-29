@@ -337,6 +337,14 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         }
     }
 
+    private void moveFigureForward() {
+        chessGame.move(sourceField.get(), destField);
+    }
+
+    private void moveFigureBack() {
+
+    }
+
     /**
      * Method creates the UI for the game including the controls and the chess board
      *
@@ -443,12 +451,29 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         if (event.getSource() == restartGame) {
             createBoard();
             initializeImages();
+            moveLog.setText("");
             sourceField = null;
             destField = null;
         } else if (event.getSource() == stepForward) {
-
+            if (sourceField != null && destField != null) {
+                moveFigureForward();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning!");
+                alert.setHeaderText("Warning while clicking FORWARD!");
+                alert.setContentText("You have to select source and destination first.");
+                alert.showAndWait();
+            }
         } else if (event.getSource() == stepBack) {
-
+            if (sourceField != null && destField != null) {
+                moveFigureBack();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning!");
+                alert.setHeaderText("Warning while clicking BACK!");
+                alert.setContentText("You have to select source and destination first.");
+                alert.showAndWait();
+            }
         }
     }
 }

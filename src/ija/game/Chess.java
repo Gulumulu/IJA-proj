@@ -128,7 +128,55 @@ public class Chess {
                 return false;
             }
         } else if (figure instanceof Knight) {
+            boolean colLong = false;
+            boolean rowLong = false;
+            boolean colShort = false;
+            boolean rowShort = false;
 
+            // if the knight is moving to the right by 2 fields
+            if (src.getColumn() == dest.getColumn() - 2) {
+                colLong = true;
+            }
+            // if the knight is moving to the left by 2 fields
+            else if (src.getColumn() == dest.getColumn() + 2) {
+                colLong = true;
+            }
+            // if the knight is moving to the right by 1 field
+            else if (src.getColumn() == dest.getColumn() - 1) {
+                colShort = true;
+            }
+            // if the knight is moving to the left by 1 field
+            else if (src.getColumn() == dest.getColumn() + 1) {
+                colShort = true;
+            }
+
+            // if the knight is moving up by 2 fields
+            if (src.getRow() == dest.getRow() - 2) {
+                rowLong = true;
+            }
+            // if the knight is moving down by 2 fields
+            else if (src.getRow() == dest.getRow() + 2) {
+                rowLong = true;
+            }
+            // if the knight is moving up by 1 space
+            else if (src.getRow() == dest.getRow() - 1) {
+                rowShort = true;
+            }
+            // if the knight is moving down by 1 space
+            else if (src.getRow() == dest.getRow() + 1) {
+                rowShort = true;
+            }
+
+            if ((rowLong && colShort) || (rowShort && colLong)) {
+                // if the destination figure is the same color as the source figure
+                if (dest.get().isWhite() == src.get().isWhite()) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } else {
+                return false;
+            }
         } else if (figure instanceof Tower) {
             // if the tower moves is a column
             if (src.getColumn() == dest.getColumn()) {
@@ -200,6 +248,9 @@ public class Chess {
                 col = false;
             }
 
+            if (src.get().isWhite() == dest.get().isWhite()) {
+                return false;
+            }
             return row && col;
         } else if (figure instanceof Queen) {
 
@@ -221,6 +272,12 @@ public class Chess {
                 return false;
             }
         }
+
+        // if the destination figure is the same color as the source figure
+        if (from.get().isWhite() == to.get().isWhite()) {
+            return false;
+        }
+
         return true;
     }
 
@@ -237,6 +294,12 @@ public class Chess {
                 return false;
             }
         }
+
+        // if the destination figure is the same color as the source figure
+        if (from.get().isWhite() == to.get().isWhite()) {
+            return false;
+        }
+
         return true;
     }
 
@@ -257,6 +320,12 @@ public class Chess {
                 }
             }
         }
+
+        // if the destination figure is the same color as the source figure
+        if (board.getField(fromCol, fromRow).get().isWhite() == board.getField(toCol, toRow).get().isWhite()) {
+            return false;
+        }
+
         return true;
     }
 

@@ -1,7 +1,10 @@
 package ija.gui;
 
+import ija.figures.*;
 import ija.game.Board;
+import ija.game.BoardField;
 import ija.game.Chess;
+import ija.game.Field;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -42,6 +45,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
     private Board chessBoard;
     private Chess chessGame;
+
+    private Field sourceField;
+    private Field destField;
 
     /**
      * The constructor of the GameGUI class
@@ -88,22 +94,41 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         char c = 'A';
 
         for (int col = 0; col < 8; col++) {
-            for (int row = 0; row <= 8; row++) {
+            for (int row = 0; row < 8; row++) {
+                if (col == 0) {
+                    String id = String.valueOf(c);
+                    boardID = new Label(id);
+                    boardID.setFont(Font.font(22));
+                    boardID.setLayoutX(row * 70 + 80);
+                    boardID.setLayoutY(15);
+                    layout.getChildren().add(boardID);
+                    boardID = new Label(id);
+                    boardID.setFont(Font.font(22));
+                    boardID.setLayoutX(row * 70 + 80);
+                    boardID.setLayoutY(620);
+                    layout.getChildren().add(boardID);
+                    c++;
+                }
+            }
+        }
+
+        int i = 1;
+
+        for (int col = 7; col >= 0; col--) {
+            for (int row = 0; row < 8; row++) {
                 if (row == 0) {
-                    String id = String.valueOf(col + 1);
+                    String id = String.valueOf(i);
                     boardID = new Label(id);
                     boardID.setFont(Font.font(22));
                     boardID.setLayoutX(15);
                     boardID.setLayoutY((col + 1) * 70 + 5);
                     layout.getChildren().add(boardID);
-                } else if (col == 0) {
-                    String id = String.valueOf(c);
                     boardID = new Label(id);
                     boardID.setFont(Font.font(22));
-                    boardID.setLayoutX(row * 70 + 10);
-                    boardID.setLayoutY(15);
+                    boardID.setLayoutX(630);
+                    boardID.setLayoutY((col + 1) * 70 + 5);
                     layout.getChildren().add(boardID);
-                    c++;
+                    i++;
                 }
             }
         }
@@ -117,31 +142,41 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
         boardField = new Rectangle[8][8];
 
-        for (int col = 0; col < 8; col++) {
-            for (int row = 0; row < 8; row++) {
+        int colCount = 7;
+        int rowCount = 0;
+
+        for (int col = 7; col >= 0; col--) {
+            for (int row = 7; row >= 0; row--) {
                 boardField[col][row] = new Rectangle();
                 boardField[col][row].setWidth(70);
                 boardField[col][row].setHeight(70);
                 boardField[col][row].setStroke(Color.TRANSPARENT);
                 boardField[col][row].setStrokeType(StrokeType.INSIDE);
                 boardField[col][row].setStrokeWidth(1);
-                boardField[col][row].setX(col * 70 + 50);
-                boardField[col][row].setY(row * 70 + 50);
+                boardField[col][row].setX(colCount * 70 + 50);
+                boardField[col][row].setY(rowCount * 70 + 50);
                 if (col % 2 == 0 && row % 2 == 1) {
-                    boardField[col][row].setFill(Color.GRAY);
+                    boardField[col][row].setFill(Color.WHITE);
                 }
                 else if (col % 2 == 0 && row % 2 == 0) {
-                    boardField[col][row].setFill(Color.WHITE);
-                }
-                else if (col % 2 == 1 && row % 2 == 1) {
-                    boardField[col][row].setFill(Color.WHITE);
-                }
-                else if (col % 2 == 1 && row % 2 == 0) {
                     boardField[col][row].setFill(Color.GRAY);
                 }
+                else if (col % 2 == 1 && row % 2 == 1) {
+                    boardField[col][row].setFill(Color.GRAY);
+                }
+                else if (col % 2 == 1 && row % 2 == 0) {
+                    boardField[col][row].setFill(Color.WHITE);
+                }
+
+                boardField[col][row].setOnMouseClicked(event -> {
+                    determinePiece(event);
+                });
 
                 layout.getChildren().add(boardField[col][row]);
+                rowCount++;
             }
+            colCount--;
+            rowCount = 0;
         }
     }
 
@@ -178,24 +213,119 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             images[col][6] = new Image("file:lib/res/white_pawn.png");
         }
 
-        for (int col = 0; col < 8; col++) {
+        int rowCount;
+
+        for (int col = 7; col >= 0; col--) {
             for (int row = 0; row < 8; row++) {
                 if (row == 0 || row == 1 || row == 6 || row == 7) {
-                    imageView[col][row] = new ImageView();
-                    imageView[col][row].setImage(images[col][row]);
-                    imageView[col][row].setFitHeight(70);
-                    imageView[col][row].setFitWidth(50);
-                    imageView[col][row].setPreserveRatio(true);
-                    imageView[col][row].setSmooth(true);
-                    imageView[col][row].setCache(true);
-                    imageView[col][row].setX(col * 70 + 60);
-                    imageView[col][row].setY(row * 70 + 60);
-                    imageView[col][row].setOnMouseClicked(event -> {
-                        
+                    if (row == 0) {
+                        rowCount = 7;
+                    } else if (row == 1) {
+                        rowCount = 6;
+                    } else if (row == 6) {
+                        rowCount = 1;
+                    } else {
+                        rowCount = 0;
+                    }
+                    imageView[col][rowCount] = new ImageView();
+                    imageView[col][rowCount].setImage(images[col][row]);
+                    imageView[col][rowCount].setFitHeight(70);
+                    imageView[col][rowCount].setFitWidth(50);
+                    imageView[col][rowCount].setPreserveRatio(true);
+                    imageView[col][rowCount].setSmooth(true);
+                    imageView[col][rowCount].setCache(true);
+                    imageView[col][rowCount].setX(col * 70 + 60);
+                    imageView[col][rowCount].setY(row * 70 + 60);
+                    imageView[col][rowCount].setOnMouseClicked(event -> {
+                        determinePiece(event);
                     });
-                    layout.getChildren().add(imageView[col][row]);
+                    layout.getChildren().add(imageView[col][rowCount]);
                 }
             }
+        }
+    }
+
+    /**
+     * Method for initializing the virtual chess pieces on the chess board
+     */
+    private void initializeFigures() {
+        chessBoard.getField(1, 1).put(new Tower(true, 1, 1));
+        chessBoard.getField(2, 1).put(new Knight(true, 2, 1));
+        chessBoard.getField(3, 1).put(new Bishop(true, 3, 1));
+        chessBoard.getField(4, 1).put(new Queen(true, 4, 1));
+        chessBoard.getField(5, 1).put(new King(true, 5, 1));
+        chessBoard.getField(6, 1).put(new Bishop(true, 6, 1));
+        chessBoard.getField(7, 1).put(new Knight(true, 7, 1));
+        chessBoard.getField(8, 1).put(new Tower(true, 8, 1));
+
+        for (int col = 1; col <= 8; col++) {
+            chessBoard.getField(col, 2).put(new Pawn(true, col, 2));
+        }
+
+        chessBoard.getField(1, 8).put(new Tower(false, 1, 8));
+        chessBoard.getField(2, 8).put(new Knight(false, 2, 8));
+        chessBoard.getField(3, 8).put(new Bishop(false, 3, 8));
+        chessBoard.getField(4, 8).put(new Queen(false, 4, 8));
+        chessBoard.getField(5, 8).put(new King(false, 5, 8));
+        chessBoard.getField(6, 8).put(new Bishop(false, 6, 8));
+        chessBoard.getField(7, 8).put(new Knight(false, 7, 8));
+        chessBoard.getField(8, 8).put(new Tower(false, 8, 8));
+
+        for (int col = 1; col <= 8; col++) {
+            chessBoard.getField(col, 7).put(new Pawn(false, col, 7));
+        }
+    }
+
+    /**
+     * Method for determining the source and destination fields
+     * @param event
+     */
+    private void determinePiece(MouseEvent event) {
+        int selectedCol = 0;
+        int selectedRow = 0;
+
+        for (int col = 0; col < 8; col++) {
+            for (int row = 0; row < 8; row++) {
+                if (event.getSource() == boardField[col][row]) {
+                    selectedCol = col;
+                    selectedRow = row;
+                } else if (event.getSource() == imageView[col][row]) {
+                    selectedCol = col;
+                    selectedRow = row;
+                }
+            }
+        }
+
+        try {
+            if (sourceField == null) {
+                if (chessBoard.getField(selectedCol + 1, selectedRow + 1).get() != null) {
+                    boardField[selectedCol][selectedRow].setStroke(Color.RED);
+                    sourceField = chessBoard.getField(selectedCol + 1, selectedRow + 1);
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error!");
+                    alert.setHeaderText("Error while selecting a field!");
+                    alert.setContentText("The source field has to have a figure on it.");
+                    alert.showAndWait();
+                }
+            } else if (sourceField == chessBoard.getField(selectedCol + 1, selectedRow + 1)) {
+                boardField[selectedCol][selectedRow].setStroke(Color.TRANSPARENT);
+                sourceField = null;
+            } else if (destField == null) {
+                boardField[selectedCol][selectedRow].setStroke(Color.RED);
+                destField = chessBoard.getField(selectedCol + 1, selectedRow + 1);
+            } else if (destField == chessBoard.getField(selectedCol + 1, selectedRow + 1)) {
+                boardField[selectedCol][selectedRow].setStroke(Color.TRANSPARENT);
+                destField = null;
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning!");
+                alert.setHeaderText("Warning while selecting a field!");
+                alert.setContentText("Source and destination fields are already selected.");
+                alert.showAndWait();
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR");
         }
     }
 
@@ -291,6 +421,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
         createBoard();
         initializeImages();
+        initializeFigures();
 
         parent.setContent(layout);
     }
@@ -302,6 +433,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent event) {
         if (event.getSource() == restartGame) {
+            createBoard();
             initializeImages();
         } else if (event.getSource() == stepForward) {
 

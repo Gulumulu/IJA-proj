@@ -1,6 +1,6 @@
 package ija.figures;
 
-public class Queen {
+public class Queen implements Figure {
 
     private boolean isWhite;
     private int col;

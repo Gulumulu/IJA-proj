@@ -1,0 +1,16 @@
+#!/bin/bash
+
+wget "https://drive.google.com/uc?export=download&id=1FYeXI9g7qDFEhBjfLq_7SyMnJkNakPoU" # black bishop
+wget "https://drive.google.com/uc?export=download&id=1bKKjiRn-ZTc1uJba8yRA3DL-LBD_C1Ou" # black king
+wget "https://drive.google.com/uc?export=download&id=1n-7PY4rq4qinKnGTnF7UqOmvCZPHHAvq" # black knight
+wget "https://drive.google.com/uc?export=download&id=1Fqu-273V9pBunjWfx3CMcJLe0DRnomUK" # black pown
+wget "https://drive.google.com/uc?export=download&id=1dEj07EzhC_GylgkLAnybOYVEOkJjfEHU" # black queen 
+wget "https://drive.google.com/uc?export=download&id=1rnqSWhWC-2x16kj9g4fb9ZJ-LMaseDeq" # black tower
+wget "https://drive.google.com/uc?export=download&id=1SrUHdtp4BJ_55BbeksM3FLCFWts1oeJ6" # empty 
+wget "https://drive.google.com/uc?export=download&id=1lZQEygRo_Pk4oQCkQI9gNsow03NfgRTv" # main 
+wget "https://drive.google.com/uc?export=download&id=1f8daopcT8XMdcjReuT7luFNcXYgMqOSV" # white bishop
+wget "https://drive.google.com/uc?export=download&id=1E5qyJz-qOc4LibTzdOU-1KfBpxaDX97I" # white king
+wget "https://drive.google.com/uc?export=download&id=1khayi_Et6iERNFiWdNpsXqz5QmDuZ8bf" # white knight
+wget "https://drive.google.com/uc?export=download&id=1YDT53AVahefVWHdYFq7XpnGFG08CchZY" # white pown
+wget "https://drive.google.com/uc?export=download&id=1h81vrPY6tzek7qdibKqEEMh8DROCkq-8" # white queen
+wget "https://drive.google.com/uc?export=download&id=1-fKoXNgarVf_OFIbGmEHIHjgLuawPFJJ" # white tower

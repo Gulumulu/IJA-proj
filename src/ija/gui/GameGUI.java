@@ -42,12 +42,14 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private Rectangle[][] boardField;
     private Image[][] images;
     private ImageView[][] imageView;
+    private Image empty;
 
     private Board chessBoard;
     private Chess chessGame;
 
     private Field sourceField;
     private Field destField;
+    private Field currentField;
 
     /**
      * The constructor of the GameGUI class
@@ -213,20 +215,11 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             images[col][6] = new Image("file:lib/res/white_pawn.png");
         }
 
-        int rowCount;
+        int rowCount = 7;
 
         for (int col = 7; col >= 0; col--) {
             for (int row = 0; row < 8; row++) {
                 if (row == 0 || row == 1 || row == 6 || row == 7) {
-                    if (row == 0) {
-                        rowCount = 7;
-                    } else if (row == 1) {
-                        rowCount = 6;
-                    } else if (row == 6) {
-                        rowCount = 1;
-                    } else {
-                        rowCount = 0;
-                    }
                     imageView[col][rowCount] = new ImageView();
                     imageView[col][rowCount].setImage(images[col][row]);
                     imageView[col][rowCount].setFitHeight(70);
@@ -240,8 +233,18 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                         determinePiece(event);
                     });
                     layout.getChildren().add(imageView[col][rowCount]);
+                } else {
+                    imageView[col][rowCount] = new ImageView();
+                    imageView[col][rowCount].setImage(empty);
+                    imageView[col][rowCount].setFitHeight(70);
+                    imageView[col][rowCount].setFitWidth(50);
+                    imageView[col][rowCount].setX(col * 70 + 60);
+                    imageView[col][rowCount].setY(row * 70 + 60);
+                    layout.getChildren().add(imageView[col][rowCount]);
                 }
+                rowCount--;
             }
+            rowCount = 7;
         }
     }
 
@@ -337,8 +340,21 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         }
     }
 
-    private void moveFigureForward() {
-        chessGame.move(sourceField.get(), destField);
+    private boolean moveFigureForward() {
+        if (sourceField.get() instanceof Pawn) {
+            currentField = chessGame.movePawn(sourceField, destField);
+            if (currentField == destField) {
+                boardField[sourceField.getColumn()][sourceField.getRow()].setStroke(Color.TRANSPARENT);
+                boardField[destField.getColumn()][destField.getRow()].setStroke(Color.TRANSPARENT);
+            }
+            Image tmp = imageView[sourceField.getColumn()][sourceField.getRow()].getImage();
+            imageView[currentField.getColumn()][currentField.getRow()].setImage(tmp);
+            imageView[sourceField.getColumn()][sourceField.getRow()].setImage(empty);
+        } else if (sourceField.get() instanceof Tower) {
+            //chessGame.moveTower(sourceField, destField);
+        }
+
+        return true;
     }
 
     private void moveFigureBack() {
@@ -356,6 +372,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         chessBoard = new Board(8);
 
         chessGame = new Chess(chessBoard);
+
+        empty = new Image("file:lib/res/empty.png");
 
         moveLog = new TextArea();
         moveLog.setLayoutX(800);

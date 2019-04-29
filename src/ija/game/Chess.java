@@ -28,6 +28,239 @@ public class Chess {
     }
 
     /**
+     * Checks whether the figure can go to the destination field
+     *
+     * @param dest the possible destination field for the figure
+     */
+    public boolean checkDestField(Field src, Field dest) {
+        Figure figure = src.get();
+
+        if (figure instanceof Pawn) {
+            // if the pawn moves in a straight line
+            if (src.getColumn() == dest.getColumn()) {
+                // if the pawn is white
+                if (figure.isWhite()) {
+                    // if the pawn moves at the start by 2 fields
+                    if (src.getRow() == 2 && dest.getRow() == 4) {
+                        return true;
+                    }
+                    // if the pawn moves by 1 field
+                    else if (src.getRow() == dest.getRow() - 1) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                // if the pawn is black
+                else {
+                    // if the pawn moves as the start by 2 fields
+                    if (src.getRow() == 7 && dest.getRow() == 5) {
+                        return true;
+                    }
+                    // if the pawn moves by 1 field
+                    else if (src.getRow() == dest.getRow() + 1) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            // if the pawn moves in a diagonal line
+            else if ((src.getColumn() == dest.getColumn() - 1) || (src.getColumn() == dest.getColumn() + 1)) {
+                // if the pawn is white
+                if (figure.isWhite()) {
+                    // if the pawn has a black figure to destroy
+                    if (dest.get() != null && !dest.get().isWhite()) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    // if the pawn has a white figure to destroy
+                    if (dest.get() != null && dest.get().isWhite()) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            } else {
+                return false;
+            }
+        } else if (figure instanceof Bishop) {
+            int colSub = src.getColumn() - dest.getColumn();
+            int rowSub = src.getRow() - dest.getRow();
+
+            int fromCol;
+            int toCol;
+            int fromRow;
+            int toRow;
+
+            // if the bishop is moving in a diagonal
+            if (Math.abs(colSub) - Math.abs(rowSub) == 0) {
+                // if the bishop is moving up
+                if (src.getRow() < dest.getRow()) {
+                    fromRow = src.getRow();
+                    toRow = dest.getRow();
+                }
+                // if the bishop is moving down
+                else if (src.getRow() < dest.getRow()) {
+                    fromRow = dest.getRow();
+                    toRow = src.getRow();
+                } else {
+                    return false;
+                }
+                // if the bishop is moving to the right
+                if (src.getColumn() < dest.getColumn()) {
+                    fromCol = src.getColumn();
+                    toCol = dest.getColumn();
+                }
+                // if the bishop is moving to the left
+                else if (src.getColumn() > dest.getColumn()) {
+                    fromCol = dest.getColumn();
+                    toCol = src.getColumn();
+                } else {
+                    return false;
+                }
+                if (!checkDiagonal(fromCol, toCol, fromRow, toRow)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else if (figure instanceof Knight) {
+
+        } else if (figure instanceof Tower) {
+            // if the tower moves is a column
+            if (src.getColumn() == dest.getColumn()) {
+                // if the tower is supposed to move up
+                if (src.getRow() < dest.getRow()) {
+                    if (!checkRowLine(src, dest)) {
+                        return false;
+                    }
+                }
+                // if the tower is supposed to move down
+                else if (src.getRow() > dest.getRow()) {
+                    if (!checkRowLine(dest, src)) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            // if the tower moves in a row
+            else if (src.getRow() == dest.getRow()) {
+                // if the tower is supposed to move to the right
+                if (src.getColumn() < dest.getColumn()) {
+                    if (!checkColLine(src, dest)) {
+                        return false;
+                    }
+                }
+                // if the tower is supposed to move to the left
+                else if (src.getColumn() > dest.getColumn()) {
+                    if (!checkColLine(dest, src)) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else if (figure instanceof King) {
+            boolean row;
+            boolean col;
+
+            // if the king is moving up
+            if (src.getRow() == dest.getRow() - 1) {
+                row = true;
+            }
+            // if the king is moving down
+            else if (src.getRow() == dest.getRow() + 1) {
+                row = true;
+            }
+            // if the king is not moving in a column
+            else if (src.getRow() == dest.getRow()) {
+                row = true;
+            } else {
+                row = false;
+            }
+
+            // if the king is moving to the right
+            if (src.getColumn() == dest.getColumn() - 1) {
+                col = true;
+            }
+            // if the king is moving to the left
+            else if (src.getColumn() == dest.getColumn() + 1) {
+                col = true;
+            }
+            // if the king is not moving is a row
+            else if (src.getColumn() == dest.getColumn()) {
+               col = true;
+            } else {
+                col = false;
+            }
+
+            return row && col;
+        } else if (figure instanceof Queen) {
+
+        }
+
+        return true;
+    }
+
+    /**
+     * Method checks if the row is empty so that the figure can move
+     *
+     * @param from field from which the figure wants to move
+     * @param to field to which the figure wants to move
+     * @return true if empty
+     */
+    private boolean checkRowLine(Field from, Field to) {
+        for (int row = from.getRow() + 1; row < to.getRow(); row++) {
+            if (board.getField(from.getColumn(), row).get() != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Method checks if the column is empty so that the figure can move
+     *
+     * @param from field from which the figure wants to move
+     * @param to field to which the figure wants to move
+     * @return true if empty
+     */
+    private boolean checkColLine(Field from, Field to) {
+        for (int col = from.getColumn() + 1; col < to.getColumn(); col++) {
+            if (board.getField(col, from.getRow()).get() != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Method checks if the diagonal is empty so that the figure can move
+     *
+     * @param fromCol check starts on this column
+     * @param toCol check ends on this column
+     * @param fromRow check starts on this row
+     * @param toRow check ends on this row
+     * @return true if empty
+     */
+    private boolean checkDiagonal(int fromCol, int toCol, int fromRow, int toRow) {
+        for (; fromCol < toCol; fromCol++) {
+            for (; fromRow < toRow; fromRow++) {
+                if (board.getField(fromCol, fromRow).get() != null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Allows the pawns to move in a column either up if white or down if black
      * Also allows the tower to move in a column either up or down regardless of its colour
      * If the destination field is occupied with a different colour figure, it is eliminated

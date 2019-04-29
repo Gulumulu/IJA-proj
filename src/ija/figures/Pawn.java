@@ -1,5 +1,8 @@
 package ija.figures;
 
+import ija.game.Field;
+import javafx.scene.layout.Pane;
+
 public class Pawn implements Figure {
 
     private boolean isWhite;

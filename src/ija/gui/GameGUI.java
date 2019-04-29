@@ -312,8 +312,16 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 boardField[selectedCol][selectedRow].setStroke(Color.TRANSPARENT);
                 sourceField = null;
             } else if (destField == null) {
-                boardField[selectedCol][selectedRow].setStroke(Color.RED);
-                destField = chessBoard.getField(selectedCol + 1, selectedRow + 1);
+                if (!chessGame.checkDestField(sourceField, chessBoard.getField(selectedCol + 1, selectedRow + 1))) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error!");
+                    alert.setHeaderText("Error while selecting a field!");
+                    alert.setContentText("The figure cannot get to the selected destination.");
+                    alert.showAndWait();
+                } else {
+                    boardField[selectedCol][selectedRow].setStroke(Color.RED);
+                    destField = chessBoard.getField(selectedCol + 1, selectedRow + 1);
+                }
             } else if (destField == chessBoard.getField(selectedCol + 1, selectedRow + 1)) {
                 boardField[selectedCol][selectedRow].setStroke(Color.TRANSPARENT);
                 destField = null;
@@ -435,6 +443,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         if (event.getSource() == restartGame) {
             createBoard();
             initializeImages();
+            sourceField = null;
+            destField = null;
         } else if (event.getSource() == stepForward) {
 
         } else if (event.getSource() == stepBack) {

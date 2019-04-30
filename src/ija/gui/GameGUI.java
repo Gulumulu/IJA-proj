@@ -401,7 +401,12 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 moveStep();
             }
         } else if (sourceField.get() instanceof Knight) {
-
+            /*currentField = chessGame.moveKnight(sourceField, destField);
+            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
+                moveDest();
+            } else {
+                moveStep();
+            }*/
         } else if (sourceField.get() instanceof Bishop) {
             currentField = chessGame.moveBishop(sourceField, destField);
             if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
@@ -410,7 +415,12 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 moveStep();
             }
         } else if (sourceField.get() instanceof King) {
-
+            currentField = chessGame.moveKing(sourceField, destField);
+            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
+                moveDest();
+            } else {
+                moveStep();
+            }
         } else if (sourceField.get() instanceof Queen) {
 
         }

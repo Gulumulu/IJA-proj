@@ -283,6 +283,14 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         for (int col = 1; col <= 8; col++) {
             chessBoard.getField(col, 7).put(new Pawn(false, col, 7));
         }
+
+        for (int col = 1; col <= 8; col++) {
+            for (int row = 3; row <= 6; row++) {
+                if (chessBoard.getField(col, row).get() != null) {
+                    chessBoard.getField(col, row).remove(chessBoard.getField(col, row).get());
+                }
+            }
+        }
     }
 
     /**
@@ -298,9 +306,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 if (event.getSource() == boardField[col][row]) {
                     selectedCol = col;
                     selectedRow = row;
+                    if (chessBoard.getField(col + 1, row + 1).get() != null) {
+                        System.out.println(chessBoard.getField(col + 1, row + 1).get().getState());
+                    }
                 } else if (event.getSource() == imageView[col][row]) {
                     selectedCol = col;
                     selectedRow = row;
+                    if (chessBoard.getField(col + 1, row + 1).get() != null) {
+                        System.out.println(chessBoard.getField(col + 1, row + 1).get().getState());
+                    }
                 }
             }
         }
@@ -321,6 +335,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 boardField[selectedCol][selectedRow].setStroke(Color.TRANSPARENT);
                 sourceField = null;
             } else if (destField == null) {
+                System.out.println("got here");
                 if (!chessGame.checkDestField(sourceField, chessBoard.getField(selectedCol + 1, selectedRow + 1))) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error!");
@@ -328,6 +343,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     alert.setContentText("The figure cannot get to the selected destination.");
                     alert.showAndWait();
                 } else {
+                    System.out.println("and here");
                     boardField[selectedCol][selectedRow].setStroke(Color.RED);
                     destField = chessBoard.getField(selectedCol + 1, selectedRow + 1);
                 }
@@ -342,30 +358,61 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 alert.showAndWait();
             }
         } catch (Exception e) {
-            System.out.println("ERROR");
+            System.out.println("ERROR -> " + e);
         }
+    }
+
+    private void moveImage(ImageView from, ImageView to) {
+        Image tmp = from.getImage();
+        to.setImage(tmp);
+        from.setImage(empty);
+    }
+
+    private void moveDest() {
+        moveImage(imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1], imageView[destField.getColumn() - 1][destField.getRow() - 1]);
+        boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        sourceField = null;
+        destField = null;
+        currentField = null;
+    }
+
+    private void moveStep() {
+        moveImage(imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1], imageView[currentField.getColumn() - 1][currentField.getRow() - 1]);
+        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        sourceField = currentField;
+        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
     }
 
     private boolean moveFigureForward() {
         if (sourceField.get() instanceof Pawn) {
             currentField = chessGame.movePawn(sourceField, destField);
-            Image tmp = imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].getImage();
-            imageView[currentField.getColumn() - 1][currentField.getRow() - 1].setImage(tmp);
-            imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].setImage(empty);
-            if (currentField != destField) {
-                boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
-                sourceField = currentField;
-                boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
-                moveLog.setText("yeah");
+            // if the current field is the destination field finish the move
+            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
+                moveDest();
             } else {
-                boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
-                boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
-                sourceField = null;
-                destField = null;
-                moveLog.setText("fuck");
+                moveStep();
             }
         } else if (sourceField.get() instanceof Tower) {
-            //chessGame.moveTower(sourceField, destField);
+            currentField = chessGame.moveTower(sourceField, destField);
+            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
+                moveDest();
+            } else {
+                moveStep();
+            }
+        } else if (sourceField.get() instanceof Knight) {
+
+        } else if (sourceField.get() instanceof Bishop) {
+            currentField = chessGame.moveBishop(sourceField, destField);
+            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
+                moveDest();
+            } else {
+                moveStep();
+            }
+        } else if (sourceField.get() instanceof King) {
+
+        } else if (sourceField.get() instanceof Queen) {
+
         }
 
         return true;
@@ -491,6 +538,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         if (event.getSource() == restartGame) {
             createBoard();
             initializeImages();
+            initializeFigures();
             moveLog.setText("");
             sourceField = null;
             destField = null;
@@ -504,7 +552,6 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 alert.setContentText("You have to select source and destination first.");
                 alert.showAndWait();
             }
-            moveFigureForward();
         } else if (event.getSource() == stepBack) {
             if (sourceField != null && destField != null) {
                 moveFigureBack();

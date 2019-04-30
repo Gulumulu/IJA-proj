@@ -276,7 +276,8 @@ public class Chess {
             } else {
                 return false;
             }
-            if (!checkDiagonal(fromCol, toCol, fromRow, toRow)) {
+
+            if (!checkDiagonal(fromCol, toCol, fromRow, toRow, src.get())) {
                 return false;
             }
         } else {
@@ -294,15 +295,18 @@ public class Chess {
      * @return true if empty
      */
     private boolean checkRowLine(Field from, Field to) {
-        for (int row = from.getRow() + 1; row < to.getRow(); row++) {
+        int row = from.getRow();
+        row++;
+        for (; row < to.getRow(); row++) {
             if (board.getField(from.getColumn(), row).get() != null) {
                 return false;
             }
         }
-
         // if the destination figure is the same color as the source figure
-        if (from.get().isWhite() == to.get().isWhite()) {
-            return false;
+        if (to.get() != null) {
+            if (from.get().isWhite() == to.get().isWhite()) {
+                return false;
+            }
         }
 
         return true;
@@ -323,8 +327,10 @@ public class Chess {
         }
 
         // if the destination figure is the same color as the source figure
-        if (from.get().isWhite() == to.get().isWhite()) {
-            return false;
+        if (to.get() != null) {
+            if (from.get().isWhite() == to.get().isWhite()) {
+                return false;
+            }
         }
 
         return true;
@@ -339,18 +345,27 @@ public class Chess {
      * @param toRow check ends on this row
      * @return true if empty
      */
-    private boolean checkDiagonal(int fromCol, int toCol, int fromRow, int toRow) {
+    private boolean checkDiagonal(int fromCol, int toCol, int fromRow, int toRow, Figure figure) {
+        System.out.println("FR " + fromRow);
+        System.out.println("FC " + fromCol);
+        System.out.println("TR " + toRow);
+        System.out.println("TC " + toCol);
         for (; fromCol < toCol; fromCol++) {
             for (; fromRow < toRow; fromRow++) {
                 if (board.getField(fromCol, fromRow).get() != null) {
-                    return false;
+                    if (board.getField(fromCol, fromRow).get() != figure) {
+                        System.out.println("hey");
+                        return false;
+                    }
                 }
             }
         }
 
         // if the destination figure is the same color as the source figure
-        if (board.getField(fromCol, fromRow).get().isWhite() == board.getField(toCol, toRow).get().isWhite()) {
-            return false;
+        if (board.getField(toCol, toRow).get() != null) {
+            if (board.getField(fromCol, fromRow).get().isWhite() == board.getField(toCol, toRow).get().isWhite()) {
+                return false;
+            }
         }
 
         return true;
@@ -360,13 +375,17 @@ public class Chess {
     public Field movePawn(Field src, Field dest) {
         Field field;
 
+        // if the pawn will move in a column
         if (src.getColumn() == dest.getColumn()) {
+            // if the white pawn will move by 2 spaces
             if (src.getRow() == 2 && dest.getRow() == 4) {
                 field = board.getField(src.getColumn(), 3);
                 field.put(src.get());
                 field.get().updateState(field.getColumn(), field.getRow());
                 src.remove(src.get());
-            } else if (src.getRow() == 7 && dest.getRow() == 5) {
+            }
+            // if the black pawn will move by 2 spaces
+            else if (src.getRow() == 7 && dest.getRow() == 5) {
                 field = board.getField(src.getColumn(), 6);
                 field.put(src.get());
                 field.get().updateState(field.getColumn(), field.getRow());
@@ -377,7 +396,9 @@ public class Chess {
                 field.get().updateState(field.getColumn(), field.getRow());
                 src.remove(src.get());
             }
-        } else {
+        }
+        // if the pawn will move diagonally
+        else {
             field = dest;
             field.remove(field.get());
             field.put(src.get());
@@ -388,12 +409,89 @@ public class Chess {
         return field;
     }
 
-    /*public Field moveTower(Field src, Field dest) {
+    public Field moveTower(Field src, Field dest) {
+        Field field;
+
+        // if the tower will move in a column
+        if (src.getRow() == dest.getRow()) {
+            field = board.getField(src.getColumn() + 1, src.getRow());
+            // if the field has a figure on it
+            if (field.get() != null) {
+                field.remove(field.get());
+                field.put(src.get());
+                field.get().updateState(field.getColumn(), field.getRow());
+                src.remove(src.get());
+            }
+            field.put(src.get());
+            field.get().updateState(field.getColumn(), field.getRow());
+            src.remove(src.get());
+        }
+        // if the tower will move in a row
+        else {
+            field = board.getField(src.getColumn(), src.getRow() + 1);
+            field.put(src.get());
+            field.get().updateState(field.getColumn(), field.getRow());
+            src.remove(src.get());
+        }
+
+        return field;
+    }
+
+    /*public Field moveKnight(Field src, Field dest) {
         Field field;
 
         return field;
     }*/
 
+    public Field moveBishop(Field src, Field dest) {
+        Field field;
+
+        boolean right = false;
+        boolean left = false;
+        boolean up = false;
+        boolean down = false;
+
+        // if the bishop is moving to the right
+        if (src.getColumn() < dest.getColumn()) {
+            right = true;
+        }
+        // if the bishop is moving to the left
+        else if (src.getColumn() > dest.getColumn()) {
+            left = true;
+        }
+
+        // if the bishop is moving up
+        if (src.getRow() < dest.getRow()) {
+            up = true;
+        }
+        // if the bishop is moving down
+        else if (src.getRow() > dest.getRow()) {
+            down = true;
+        }
+
+        if (right && up) {
+            field = board.getField(src.getColumn() + 1, src.getRow() + 1);
+        } else if (right && down) {
+            field = board.getField(src.getColumn() + 1, src.getRow() - 1);
+        } else if (left && up) {
+            field = board.getField(src.getColumn() - 1, src.getRow() + 1);
+        } else {
+            field = board.getField(src.getColumn() - 1, src.getRow() - 1);
+        }
+
+        if (field.get() != null) {
+            field.remove(field.get());
+            field.put(src.get());
+            field.get().updateState(field.getColumn(), field.getRow());
+            src.remove(src.get());
+        } else {
+            field.put(src.get());
+            field.get().updateState(field.getColumn(), field.getRow());
+            src.remove(src.get());
+        }
+
+        return field;
+    }
 
     /**
      * Reverts back to the previous state before a movement was performed

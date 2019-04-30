@@ -300,7 +300,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
     /**
      * Method for determining the source and destination fields
-     * @param event
+     *
+     * @param event click of the primary mouse button
      */
     private void determinePiece(MouseEvent event) {
         int selectedCol = 0;
@@ -433,6 +434,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 moveKnightDest();
                 store.setImage(empty);
                 original = null;
+                knight = false;
             } else {
                 Image tmp = imageView[currentField.getColumn() - 1][currentField.getRow() - 1].getImage();
                 moveKnight();

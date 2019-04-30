@@ -496,9 +496,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
             }
 
-            if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Pawn) {
-                halfMove = "p";
-            } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof King) {
+            if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof King) {
                 halfMove = "K";
             } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Knight) {
                 halfMove = "J";
@@ -507,7 +505,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Queen) {
                 halfMove = "D";
             } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Tower) {
-                    halfMove = "V";
+                halfMove = "V";
             }
 
             int col = destField.getColumn();

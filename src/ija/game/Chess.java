@@ -140,6 +140,7 @@ public class Chess {
             if (!((rowLong && colShort) || (rowShort && colLong))) {
                 return false;
             }
+
             return true;
         } else if (figure instanceof Tower) {
             if (!checkTower(src, dest)) {
@@ -493,13 +494,45 @@ public class Chess {
         return field;
     }
 
-    /*public Field moveKnight(Field src, Field dest) {
+    public Field moveKnight(Field src, Field dest, String dir, Field original) {
         Field field;
 
+        if (dir.equals("D")) {
+            field = board.getField(src.getColumn(), src.getRow() - 1);
+        } else if (dir.equals("U")) {
+            field = board.getField(src.getColumn(), src.getRow() + 1);
+        } else if (dir.equals("R")) {
+            field = board.getField(src.getColumn() + 1, src.getRow());
+        } else if (dir.equals("L")) {
+            field = board.getField(src.getColumn() - 1, src.getRow());
+        } else {
+            if (src.getColumn() < dest.getColumn()) {
+                field = board.getField(src.getColumn() + 1, src.getRow());
+            } else if (src.getColumn() > dest.getColumn()) {
+                field = board.getField(src.getColumn() - 1, src.getRow());
+            } else if (src.getRow() < dest.getRow()) {
+                field = board.getField(src.getColumn(), src.getRow() + 1);
+            } else {
+                field = board.getField(src.getColumn(), src.getRow() - 1);
+            }
+        }
+
+        if (dir.equals("") && field.get() != null) {
+            field.remove(field.get());
+            field.put(original.get());
+            field.get().updateState(field.getColumn(), field.getRow());
+            board.getField(original.getColumn(), original.getRow()).remove(original.get());
+        } else if (dir.equals("")) {
+            field.put(original.get());
+            field.get().updateState(field.getColumn(), field.getRow());
+            board.getField(original.getColumn(), original.getRow()).remove(original.get());
+        }
+
+        //field = performMove(src, field);
 
 
         return field;
-    }*/
+    }
 
     public Field moveBishop(Field src, Field dest) {
         Field field;

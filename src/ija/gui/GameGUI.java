@@ -21,7 +21,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 
-
 /**
  * The interface of a single game of Chess
  */
@@ -46,6 +45,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private Image[][] images;
     private ImageView[][] imageView;
     private Image empty;
+    private ImageView store;
 
     private Board chessBoard;
     private Chess chessGame;
@@ -53,6 +53,11 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private Field sourceField;
     private Field destField;
     private Field currentField;
+    private String dir;
+    private boolean knight;
+    private Field original;
+
+    private int activePlayer;
 
     /**
      * The constructor of the GameGUI class
@@ -335,7 +340,6 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 boardField[selectedCol][selectedRow].setStroke(Color.TRANSPARENT);
                 sourceField = null;
             } else if (destField == null) {
-                //System.out.println("got here");
                 if (!chessGame.checkDestField(sourceField, chessBoard.getField(selectedCol + 1, selectedRow + 1))) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error!");
@@ -343,7 +347,6 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     alert.setContentText("The figure cannot get to the selected destination.");
                     alert.showAndWait();
                 } else {
-                    //System.out.println("and here");
                     boardField[selectedCol][selectedRow].setStroke(Color.RED);
                     destField = chessBoard.getField(selectedCol + 1, selectedRow + 1);
                 }
@@ -384,31 +387,68 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
     }
 
+    private void moveKnight() {
+        Image tmp = imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].getImage();
+        imageView[currentField.getColumn() - 1][currentField.getRow() - 1].setImage(tmp);
+        imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].setImage(store.getImage());
+        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        sourceField = currentField;
+        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
+    }
+
+    private void moveKnightDest() {
+        Image tmp = imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].getImage();
+        imageView[currentField.getColumn() - 1][currentField.getRow() - 1].setImage(tmp);
+        imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].setImage(store.getImage());
+        boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        sourceField = null;
+        destField = null;
+        currentField = null;
+    }
+
     private boolean moveFigureForward() {
-        if (sourceField.get() instanceof Pawn) {
-            currentField = chessGame.movePawn(sourceField, destField);
+        if (sourceField.get() instanceof Knight || knight) {
+            knight = true;
+            if (sourceField.getRow() == destField.getRow() + 2) {
+                dir = "D";
+                original = sourceField;
+            } else if (sourceField.getRow() == destField.getRow() - 2) {
+                dir = "U";
+                original = sourceField;
+            } else if (sourceField.getColumn() == destField.getColumn() + 2) {
+                dir = "L";
+                original = sourceField;
+            } else if (sourceField.getColumn() == destField.getColumn() - 2) {
+                dir = "R";
+                original = sourceField;
+            }
+            if ((dir.equals("D") || dir.equals("U")) && sourceField.getRow() == destField.getRow()) {
+                dir = "";
+            } else if ((dir.equals("L") || dir.equals("R")) && sourceField.getColumn() == destField.getColumn()) {
+                dir = "";
+            }
+            currentField = chessGame.moveKnight(sourceField, destField, dir, original);
+            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
+                moveKnightDest();
+                store.setImage(empty);
+                original = null;
+            } else {
+                Image tmp = imageView[currentField.getColumn() - 1][currentField.getRow() - 1].getImage();
+                moveKnight();
+                store.setImage(tmp);
+            }
+        } else if (sourceField.get() instanceof Tower) {
+            currentField = chessGame.moveTower(sourceField, destField);
             // if the current field is the destination field finish the move
             if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
                 moveDest();
             } else {
                 moveStep();
             }
-        } else if (sourceField.get() instanceof Tower) {
-            currentField = chessGame.moveTower(sourceField, destField);
-            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
-                moveDest();
-            } else {
-                moveStep();
-            }
-        } else if (sourceField.get() instanceof Knight) {
-            /*currentField = chessGame.moveKnight(sourceField, destField);
-            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
-                moveDest();
-            } else {
-                moveStep();
-            }*/
         } else if (sourceField.get() instanceof Bishop) {
             currentField = chessGame.moveBishop(sourceField, destField);
+            // if the current field is the destination field finish the move
             if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
                 moveDest();
             } else {
@@ -419,6 +459,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             moveDest();
         } else if (sourceField.get() instanceof Queen) {
             currentField = chessGame.moveKing(sourceField, destField);
+            // if the current field is the destination field finish the move
+            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
+                moveDest();
+            } else {
+                moveStep();
+            }
+        } else if (sourceField.get() instanceof Pawn) {
+            currentField = chessGame.movePawn(sourceField, destField);
+            // if the current field is the destination field finish the move
             if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
                 moveDest();
             } else {
@@ -446,6 +495,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         chessGame = new Chess(chessBoard);
 
         empty = new Image("file:lib/res/empty.png");
+
+        knight = false;
+
+        store = new ImageView();
+        store.setImage(empty);
+        store.setFitHeight(70);
+        store.setFitWidth(50);
+        store.setPreserveRatio(true);
+        store.setSmooth(true);
 
         moveLog = new TextArea();
         moveLog.setLayoutX(800);

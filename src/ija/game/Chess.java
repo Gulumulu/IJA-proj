@@ -258,10 +258,11 @@ public class Chess {
                 toRow = dest.getRow();
             }
             // if the bishop is moving down
-            else if (src.getRow() < dest.getRow()) {
+            else if (src.getRow() > dest.getRow()) {
                 fromRow = dest.getRow();
                 toRow = src.getRow();
             } else {
+                System.out.println("nah");
                 return false;
             }
             // if the bishop is moving to the right
@@ -274,6 +275,7 @@ public class Chess {
                 fromCol = dest.getColumn();
                 toCol = src.getColumn();
             } else {
+                System.out.println("yah");
                 return false;
             }
 
@@ -297,14 +299,9 @@ public class Chess {
     private boolean checkRowLine(Field from, Field to) {
         int row = from.getRow();
         row++;
+
         for (; row < to.getRow(); row++) {
             if (board.getField(from.getColumn(), row).get() != null) {
-                return false;
-            }
-        }
-        // if the destination figure is the same color as the source figure
-        if (to.get() != null) {
-            if (from.get().isWhite() == to.get().isWhite()) {
                 return false;
             }
         }
@@ -320,15 +317,11 @@ public class Chess {
      * @return true if empty
      */
     private boolean checkColLine(Field from, Field to) {
-        for (int col = from.getColumn() + 1; col < to.getColumn(); col++) {
-            if (board.getField(col, from.getRow()).get() != null) {
-                return false;
-            }
-        }
+        int col = from.getColumn();
+        col++;
 
-        // if the destination figure is the same color as the source figure
-        if (to.get() != null) {
-            if (from.get().isWhite() == to.get().isWhite()) {
+        for (; col < to.getColumn(); col++) {
+            if (board.getField(col, from.getRow()).get() != null) {
                 return false;
             }
         }
@@ -346,30 +339,43 @@ public class Chess {
      * @return true if empty
      */
     private boolean checkDiagonal(int fromCol, int toCol, int fromRow, int toRow, Figure figure) {
-        System.out.println("FR " + fromRow);
+        //fromCol++;
+        //fromRow++;
+        //toCol--;
+        //toRow--;
+
         System.out.println("FC " + fromCol);
-        System.out.println("TR " + toRow);
+        System.out.println("FR " + fromRow);
         System.out.println("TC " + toCol);
+        System.out.println("TR " + toRow);
+
         for (; fromCol < toCol; fromCol++) {
             for (; fromRow < toRow; fromRow++) {
-                if (board.getField(fromCol, fromRow).get() != null) {
-                    if (board.getField(fromCol, fromRow).get() != figure) {
-                        System.out.println("hey");
-                        return false;
+                if (Math.abs(fromCol - toCol) - Math.abs(fromRow - toRow) == 0) {
+                    if (board.getField(fromCol, fromRow).get() != null) {
+                        if (figure != board.getField(fromCol, fromRow).get()) {
+                            System.out.println("bad");
+                            return false;
+                        }
                     }
                 }
             }
         }
 
-        // if the destination figure is the same color as the source figure
-        if (board.getField(toCol, toRow).get() != null) {
-            if (board.getField(fromCol, fromRow).get().isWhite() == board.getField(toCol, toRow).get().isWhite()) {
-                return false;
-            }
-        }
-
         return true;
     }
+
+    /*private checkDiagonal(boolean right, boolean left, boolean up, boolean down, Field from, Field to) {
+        if (right && up) {
+
+        } else if (right && down) {
+
+        } else if (left && up) {
+
+        } else if (left && down) {
+
+        }
+    }*/
 
 
     public Field movePawn(Field src, Field dest) {
@@ -412,27 +418,40 @@ public class Chess {
     public Field moveTower(Field src, Field dest) {
         Field field;
 
-        // if the tower will move in a column
-        if (src.getRow() == dest.getRow()) {
-            field = board.getField(src.getColumn() + 1, src.getRow());
-            // if the field has a figure on it
-            if (field.get() != null) {
-                field.remove(field.get());
-                field.put(src.get());
-                field.get().updateState(field.getColumn(), field.getRow());
-                src.remove(src.get());
-            }
-            field.put(src.get());
-            field.get().updateState(field.getColumn(), field.getRow());
-            src.remove(src.get());
-        }
         // if the tower will move in a row
+        if (src.getRow() == dest.getRow()) {
+            // if the tower is moving to the right
+            if (src.getColumn() < dest.getColumn()) {
+                field = board.getField(src.getColumn() + 1, src.getRow());
+            }
+            // if the tower is moving to the left
+            else {
+                field = board.getField(src.getColumn() - 1, src.getRow());
+            }
+
+        }
+        // if the tower will move in a column
         else {
-            field = board.getField(src.getColumn(), src.getRow() + 1);
+            // if the tower is moving up
+            if (src.getRow() < dest.getRow()) {
+                field = board.getField(src.getColumn(), src.getRow() + 1);
+            }
+            // if the tower is moving down
+            else {
+                field = board.getField(src.getColumn(), src.getRow() - 1);
+            }
+        }
+
+        // if the field has a figure on it
+        if (field.get() != null) {
+            field.remove(field.get());
             field.put(src.get());
             field.get().updateState(field.getColumn(), field.getRow());
             src.remove(src.get());
         }
+        field.put(src.get());
+        field.get().updateState(field.getColumn(), field.getRow());
+        src.remove(src.get());
 
         return field;
     }

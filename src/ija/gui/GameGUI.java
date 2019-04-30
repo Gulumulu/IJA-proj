@@ -335,7 +335,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 boardField[selectedCol][selectedRow].setStroke(Color.TRANSPARENT);
                 sourceField = null;
             } else if (destField == null) {
-                System.out.println("got here");
+                //System.out.println("got here");
                 if (!chessGame.checkDestField(sourceField, chessBoard.getField(selectedCol + 1, selectedRow + 1))) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error!");
@@ -343,7 +343,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     alert.setContentText("The figure cannot get to the selected destination.");
                     alert.showAndWait();
                 } else {
-                    System.out.println("and here");
+                    //System.out.println("and here");
                     boardField[selectedCol][selectedRow].setStroke(Color.RED);
                     destField = chessBoard.getField(selectedCol + 1, selectedRow + 1);
                 }

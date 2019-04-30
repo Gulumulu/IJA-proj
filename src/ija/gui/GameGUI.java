@@ -416,13 +416,14 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             }
         } else if (sourceField.get() instanceof King) {
             currentField = chessGame.moveKing(sourceField, destField);
+            moveDest();
+        } else if (sourceField.get() instanceof Queen) {
+            currentField = chessGame.moveKing(sourceField, destField);
             if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
                 moveDest();
             } else {
                 moveStep();
             }
-        } else if (sourceField.get() instanceof Queen) {
-
         }
 
         return true;

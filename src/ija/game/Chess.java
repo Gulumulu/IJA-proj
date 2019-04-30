@@ -542,12 +542,6 @@ public class Chess {
         return field;
     }
 
-    /*public Field moveQueen(Field src, Field dest) {
-        Field field;
-
-        return field;
-    }*/
-
     public Field moveKing(Field src, Field dest) {
         Field field;
 

@@ -2,7 +2,6 @@ package ija.gui;
 
 import ija.figures.*;
 import ija.game.Board;
-import ija.game.BoardField;
 import ija.game.Chess;
 import ija.game.Field;
 import javafx.beans.value.ChangeListener;
@@ -57,6 +56,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private boolean knight;
     private Field original;
 
+    private int moveCounter;
+    private boolean moveFinished;
+    private String halfMove;
     private int activePlayer;
 
     /**
@@ -376,6 +378,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         moveImage(imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1], imageView[destField.getColumn() - 1][destField.getRow() - 1]);
         boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
         boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        writeMove();
         sourceField = null;
         destField = null;
         currentField = null;
@@ -403,6 +406,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].setImage(store.getImage());
         boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
         boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        writeMove();
         sourceField = null;
         destField = null;
         currentField = null;
@@ -484,6 +488,46 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
     }
 
+    private void writeMove() {
+        if (!moveFinished) {
+            halfMove = "";
+
+            if (longNotation.isSelected()) {
+
+            }
+
+            if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Pawn) {
+                halfMove = "p";
+            } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof King) {
+                halfMove = "K";
+            } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Knight) {
+                halfMove = "J";
+            } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Bishop) {
+                halfMove = "S";
+            } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Queen) {
+                halfMove = "D";
+            } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Tower) {
+                    halfMove = "V";
+            }
+
+            int col = destField.getColumn();
+            col += 96;
+            int row = destField.getRow();
+            halfMove = halfMove + (char)col + row + " ";
+        } else {
+            // if the user has selected short notations
+            if (shortNotation.isSelected()) {
+                moveCounter++;
+                moveLog.appendText(moveCounter + ". H" + "\n");
+            }
+            // if the user has selected long notations
+            else if (longNotation.isSelected()) {
+                moveCounter++;
+                moveLog.appendText(moveCounter + ". dddd" + "\n");
+            }
+        }
+    }
+
     /**
      * Method creates the UI for the game including the controls and the chess board
      *
@@ -499,6 +543,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         empty = new Image("file:lib/res/empty.png");
 
         knight = false;
+        moveCounter = 0;
+        moveFinished = false;
 
         store = new ImageView();
         store.setImage(empty);
@@ -579,11 +625,11 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
         notation = new ToggleGroup();
 
-        shortNotation = new RadioButton("Short Output");
-        configureRadioButtons(shortNotation, 180, 1050, true, notation);
+        shortNotation = new RadioButton("Short Notation");
+        configureRadioButtons(shortNotation, 180, 1030, true, notation);
 
-        longNotation = new RadioButton("Long Output");
-        configureRadioButtons(longNotation, 210, 1050, false, notation);
+        longNotation = new RadioButton("Long Notation");
+        configureRadioButtons(longNotation, 210, 1030, false, notation);
 
         speedInput = new TextField();
         speedInput.setLayoutX(1080);

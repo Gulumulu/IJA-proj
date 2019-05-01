@@ -140,8 +140,8 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
             alert.setHeaderText("Error while opening a save file!");
             alert.setContentText("Save files are in a .save format.");
             alert.showAndWait();
-            loadFile = null;
         }
+        loadFile = null;
     }
 
     /**

@@ -19,14 +19,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * The interface of a single game of Chess
@@ -91,9 +87,18 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
      * @param file file to load the chess game from
      */
     private void loadGame(File file) {
+        images = new Image[8][8];
+        imageView = new ImageView[8][8];
+
+        placeImageViews(false);
+
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file.getAbsolutePath()));
             String line = reader.readLine();
+            if (line.equals("1")) {
+                changeActivePlayer();
+            }
+            line = reader.readLine();
             while (line != null) {
                 placeFigure(line);
                 line = reader.readLine();
@@ -109,9 +114,6 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         int col;
         int row;
         boolean isWhite;
-
-        images = new Image[8][8];
-        imageView = new ImageView[8][8];
 
         color = Character.toString(line.charAt(2));
         if (color.equals("W")) {
@@ -130,6 +132,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             } else {
                 images[col - 1][row - 1] = new Image("file:lib/res/black_pawn.png");
             }
+            makeView(col - 1, row - 1,row - 1, false);
         }
         // if the line defines a tower
         else if (line.matches("^V.*$")) {
@@ -139,6 +142,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             } else {
                 images[col - 1][row - 1] = new Image("file:lib/res/black_tower.png");
             }
+            makeView(col - 1, row - 1,row - 1, false);
         }
         // if the line defines a knight
         else if (line.matches("^J.*$")) {
@@ -148,6 +152,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             } else {
                 images[col - 1][row - 1] = new Image("file:lib/res/black_knight.png");
             }
+            makeView(col - 1, row - 1,row - 1, false);
         }
         // if the line defines a bishop
         else if (line.matches("^S.*$")) {
@@ -157,6 +162,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             } else {
                 images[col - 1][row - 1] = new Image("file:lib/res/black_bishop.png");
             }
+            makeView(col - 1, row - 1,row - 1, false);
         }
         // if the line defines a king
         else if (line.matches("^K.*$")) {
@@ -166,6 +172,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             } else {
                 images[col - 1][row - 1] = new Image("file:lib/res/black_king.png");
             }
+            makeView(col - 1, row - 1,row - 1, false);
         }
         // if the line defines a queen
         else if (line.matches("^D.*$")) {
@@ -175,26 +182,12 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             } else {
                 images[col - 1][row - 1] = new Image("file:lib/res/black_queen.png");
             }
+            makeView(col - 1, row - 1,row - 1, false);
         }
         // if the line is not compatible
         else {
 
         }
-
-        int rowCount = 7 - (row - 1);
-
-        imageView[col - 1][rowCount] = new ImageView();
-        imageView[col - 1][rowCount].setImage(images[col - 1][row - 1]);
-        imageView[col - 1][rowCount].setFitHeight(70);
-        imageView[col - 1][rowCount].setFitWidth(50);
-        imageView[col - 1][rowCount].setPreserveRatio(true);
-        imageView[col - 1][rowCount].setSmooth(true);
-        imageView[col - 1][rowCount].setX((col - 1) * 70 + 60);
-        imageView[col - 1][rowCount].setY(rowCount * 70 + 60);
-        imageView[col - 1][rowCount].setOnMouseClicked(event -> {
-            determinePiece(event);
-        });
-        layout.getChildren().add(imageView[col - 1][rowCount]);
     }
 
     /**
@@ -356,37 +349,41 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             images[col][6] = new Image("file:lib/res/white_pawn.png");
         }
 
+        placeImageViews(true);
+    }
+
+    private void placeImageViews(boolean newGame) {
         int rowCount = 7;
 
         for (int col = 7; col >= 0; col--) {
             for (int row = 0; row < 8; row++) {
-                if (row == 0 || row == 1 || row == 6 || row == 7) {
-                    imageView[col][rowCount] = new ImageView();
-                    imageView[col][rowCount].setImage(images[col][row]);
-                    imageView[col][rowCount].setFitHeight(70);
-                    imageView[col][rowCount].setFitWidth(50);
-                    imageView[col][rowCount].setPreserveRatio(true);
-                    imageView[col][rowCount].setSmooth(true);
-                    imageView[col][rowCount].setX(col * 70 + 60);
-                    imageView[col][rowCount].setY(row * 70 + 60);
-                    imageView[col][rowCount].setOnMouseClicked(event -> {
-                        determinePiece(event);
-                    });
-                    layout.getChildren().add(imageView[col][rowCount]);
+                if (newGame && (row == 0 || row == 1 || row == 6 || row == 7)) {
+                    makeView(col, rowCount, row, true);
                 } else {
-                    imageView[col][rowCount] = new ImageView();
-                    imageView[col][rowCount].setImage(empty);
-                    imageView[col][rowCount].setFitHeight(70);
-                    imageView[col][rowCount].setFitWidth(50);
-                    imageView[col][rowCount].setPreserveRatio(true);
-                    imageView[col][rowCount].setSmooth(true);
-                    imageView[col][rowCount].setX(col * 70 + 60);
-                    imageView[col][rowCount].setY(row * 70 + 60);
-                    layout.getChildren().add(imageView[col][rowCount]);
+                    makeView(col, rowCount, row, true);
                 }
                 rowCount--;
             }
             rowCount = 7;
+        }
+    }
+
+    private void makeView(int col, int rowCount, int row, boolean newGame) {
+        if (newGame) {
+            imageView[col][rowCount] = new ImageView();
+            imageView[col][rowCount].setImage(images[col][row]);
+            imageView[col][rowCount].setFitHeight(70);
+            imageView[col][rowCount].setFitWidth(50);
+            imageView[col][rowCount].setPreserveRatio(true);
+            imageView[col][rowCount].setSmooth(true);
+            imageView[col][rowCount].setX(col * 70 + 60);
+            imageView[col][rowCount].setY(row * 70 + 60);
+            imageView[col][rowCount].setOnMouseClicked(event -> {
+                determinePiece(event);
+            });
+            layout.getChildren().add(imageView[col][rowCount]);
+        } else {
+            imageView[col][rowCount].setImage(images[col][row]);
         }
     }
 
@@ -925,6 +922,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             if (file != null) {
                 try {
                     PrintWriter writer = new PrintWriter(file);
+                    writer.println(activePlayer);
                     for (String string : save) {
                         writer.println(string);
                     }

@@ -22,11 +22,11 @@ import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * The interface of a single game of Chess
@@ -74,11 +74,127 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
     private int activePlayer;
 
-    /**
-     * The constructor of the GameGUI class
-     */
-    public GameGUI() {
+    private File loadFile;
 
+    /**
+     * The constructor for the GameGUI class
+     *
+     * @param loadFile a game save file to be loaded
+     */
+    public GameGUI(File loadFile) {
+        this.loadFile = loadFile;
+    }
+
+    /**
+     * Method load a chess game from the read file
+     *
+     * @param file file to load the chess game from
+     */
+    private void loadGame(File file) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file.getAbsolutePath()));
+            String line = reader.readLine();
+            while (line != null) {
+                placeFigure(line);
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            System.out.println("ERROR!");
+        }
+    }
+
+    private void placeFigure(String line) {
+        String color;
+        int col;
+        int row;
+        boolean isWhite;
+
+        images = new Image[8][8];
+        imageView = new ImageView[8][8];
+
+        color = Character.toString(line.charAt(2));
+        if (color.equals("W")) {
+            isWhite = true;
+        } else {
+            isWhite = false;
+        }
+        col = Integer.parseInt(Character.toString(line.charAt(4)));
+        row = Integer.parseInt(Character.toString(line.charAt(6)));
+
+        // if the line defines a pawn
+        if (line.matches("^P.*$")) {
+            chessBoard.getField(col, row).put(new Pawn(isWhite, col, row));
+            if (isWhite) {
+                images[col - 1][row - 1] = new Image("file:lib/res/white_pawn.png");
+            } else {
+                images[col - 1][row - 1] = new Image("file:lib/res/black_pawn.png");
+            }
+        }
+        // if the line defines a tower
+        else if (line.matches("^V.*$")) {
+            chessBoard.getField(col, row).put(new Tower(isWhite, col, row));
+            if (isWhite) {
+                images[col - 1][row - 1] = new Image("file:lib/res/white_tower.png");
+            } else {
+                images[col - 1][row - 1] = new Image("file:lib/res/black_tower.png");
+            }
+        }
+        // if the line defines a knight
+        else if (line.matches("^J.*$")) {
+            chessBoard.getField(col, row).put(new Knight(isWhite, col, row));
+            if (isWhite) {
+                images[col - 1][row - 1] = new Image("file:lib/res/white_knight.png");
+            } else {
+                images[col - 1][row - 1] = new Image("file:lib/res/black_knight.png");
+            }
+        }
+        // if the line defines a bishop
+        else if (line.matches("^S.*$")) {
+            chessBoard.getField(col, row).put(new Bishop(isWhite, col, row));
+            if (isWhite) {
+                images[col - 1][row - 1] = new Image("file:lib/res/white_bishop.png");
+            } else {
+                images[col - 1][row - 1] = new Image("file:lib/res/black_bishop.png");
+            }
+        }
+        // if the line defines a king
+        else if (line.matches("^K.*$")) {
+            chessBoard.getField(col, row).put(new King(isWhite, col, row));
+            if (isWhite) {
+                images[col - 1][row - 1] = new Image("file:lib/res/white_king.png");
+            } else {
+                images[col - 1][row - 1] = new Image("file:lib/res/black_king.png");
+            }
+        }
+        // if the line defines a queen
+        else if (line.matches("^D.*$")) {
+            chessBoard.getField(col, row).put(new Queen(isWhite, col, row));
+            if (isWhite) {
+                images[col - 1][row - 1] = new Image("file:lib/res/white_queen.png");
+            } else {
+                images[col - 1][row - 1] = new Image("file:lib/res/black_queen.png");
+            }
+        }
+        // if the line is not compatible
+        else {
+
+        }
+
+        int rowCount = 7 - (row - 1);
+
+        imageView[col - 1][rowCount] = new ImageView();
+        imageView[col - 1][rowCount].setImage(images[col - 1][row - 1]);
+        imageView[col - 1][rowCount].setFitHeight(70);
+        imageView[col - 1][rowCount].setFitWidth(50);
+        imageView[col - 1][rowCount].setPreserveRatio(true);
+        imageView[col - 1][rowCount].setSmooth(true);
+        imageView[col - 1][rowCount].setX((col - 1) * 70 + 60);
+        imageView[col - 1][rowCount].setY(rowCount * 70 + 60);
+        imageView[col - 1][rowCount].setOnMouseClicked(event -> {
+            determinePiece(event);
+        });
+        layout.getChildren().add(imageView[col - 1][rowCount]);
     }
 
     /**
@@ -641,18 +757,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             output = output + halfMove;
             halfMove = "";
         } else {
-            // if the user has selected short notations
-            if (shortNotation.isSelected()) {
-                moveCounter++;
-                output = output + halfMove;
-                moveLog.appendText(output + "\n");
-            }
-            // if the user has selected long notations
-            else if (longNotation.isSelected()) {
-                moveCounter++;
-                output = output + halfMove;
-                moveLog.appendText(output + "\n");
-            }
+            moveCounter++;
+            output = output + halfMove;
+            moveLog.appendText(output + "\n");
             System.out.println(output);
             output = "";
         }
@@ -785,8 +892,13 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerColor, saveGameButton);
 
         createBoard();
-        initializeImages();
-        initializeFigures();
+
+        if (loadFile != null) {
+            loadGame(loadFile);
+        } else {
+            initializeImages();
+            initializeFigures();
+        }
 
         parent.setContent(layout);
     }

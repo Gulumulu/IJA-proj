@@ -32,6 +32,7 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
     private ImageView logoView;
 
     private int tabCount;
+    private File loadFile;
 
     /**
      * Class constructor, sets the tab counter to 0
@@ -66,6 +67,8 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
         split = new SplitPane();
         topPanel = new Pane();
         bottomPanel = new TabPane();
+
+        loadFile = null;
 
         split.setOrientation(Orientation.VERTICAL);
         split.setPrefWidth(1200);
@@ -128,8 +131,8 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
      */
     private void loadFile() {
         FileChooser fc = new FileChooser();
-        File selectedFile = fc.showOpenDialog(null);
-        if (selectedFile.getName().matches("^.*.save$")) {
+        loadFile = fc.showOpenDialog(null);
+        if (loadFile.getName().matches("^.*.save$")) {
             createTab();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -137,6 +140,7 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
             alert.setHeaderText("Error while opening a save file!");
             alert.setContentText("Save files are in a .save format.");
             alert.showAndWait();
+            loadFile = null;
         }
     }
 
@@ -146,7 +150,7 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
     private void createTab() {
         this.tabCount++;
         Tab tab = new Tab("Game " + tabCount);
-        GameGUI game = new GameGUI();
+        GameGUI game = new GameGUI(loadFile);
         game.createUI(tab);
         bottomPanel.getTabs().add(tab);
         bottomPanel.getSelectionModel().select(tab);

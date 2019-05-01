@@ -19,6 +19,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 
 /**
  * The interface of a single game of Chess
@@ -26,6 +34,7 @@ import javafx.scene.text.Font;
 public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
     private Pane layout;
+    private Button saveGameButton;
     private Label buttonText;
     private TextArea moveLog;
     private RadioButton modeAuto;
@@ -733,13 +742,16 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         });
 
         restartGame = new Button("Restart Game");
-        configureButtons(restartGame, 125, 50, 800, 185);
+        configureButtons(restartGame, 140, 50, 800, 185);
 
         stepBack = new Button("BACK");
         configureButtons(stepBack, 100, 35, 950, 50);
 
         stepForward = new Button("FORWARD");
         configureButtons(stepForward, 100, 35, 1050, 50);
+
+        saveGameButton = new Button("Save Game");
+        configureButtons(saveGameButton, 140, 50, 1010, 185);
 
         speedText = new Label("Step speed in MS:");
         speedText.setFont(Font.font(14));
@@ -749,10 +761,10 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         notation = new ToggleGroup();
 
         shortNotation = new RadioButton("Short Notation");
-        configureRadioButtons(shortNotation, 185, 1030, true, notation);
+        configureRadioButtons(shortNotation, 630, 840, true, notation);
 
         longNotation = new RadioButton("Long Notation");
-        configureRadioButtons(longNotation, 215, 1030, false, notation);
+        configureRadioButtons(longNotation, 630, 1000, false, notation);
 
         active = new Label("ACTIVE PLAYER:");
         active.setFont(Font.font(20));
@@ -770,7 +782,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         speedInput.setPrefWidth(100);
         speedInput.setEditable(false);
 
-        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerColor);
+        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerColor, saveGameButton);
 
         createBoard();
         initializeImages();
@@ -792,6 +804,24 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             moveLog.setText("");
             sourceField = null;
             destField = null;
+        } else if (event.getSource() == saveGameButton) {
+            List<String> save = chessGame.getGameState();
+            FileChooser fc = new FileChooser();
+            FileChooser.ExtensionFilter ext = new FileChooser.ExtensionFilter("SAVE files (*.save)", "*.save");
+            fc.getExtensionFilters().add(ext);
+            File file = fc.showSaveDialog(null);
+            if (file != null) {
+                try {
+                    PrintWriter writer = new PrintWriter(file);
+                    for (String string : save) {
+                        writer.println(string);
+                    }
+                    writer.close();
+                } catch (IOException e) {
+                    System.out.println("ERROR!");
+                }
+            }
+
         } else if (event.getSource() == stepForward) {
             if (sourceField != null && destField != null) {
                 moveFigureForward();

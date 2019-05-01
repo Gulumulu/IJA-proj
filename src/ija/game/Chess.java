@@ -2,6 +2,8 @@ package ija.game;
 
 import ija.figures.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class Chess {
@@ -28,9 +30,29 @@ public class Chess {
     }
 
     /**
+     * Method gathers information on the current positions of the figures
+     * @return list of strings with info on individual pieces
+     */
+    public List<String> getGameState() {
+        List<String> gameState = new ArrayList<>();
+
+        for (int col = 1; col <= 8; col++) {
+            for (int row = 1; row <=8; row++) {
+                if (board.getField(col, row).get() != null) {
+                    gameState.add(board.getField(col, row).get().getState());
+                }
+            }
+        }
+
+        return gameState;
+    }
+
+    /**
      * Checks whether the figure can go to the destination field
      *
-     * @param dest the possible destination field for the figure
+     * @param src the source field with the figure that wants to move
+     * @param dest possible destination field for the figure
+     * @return true if it is possible for the figure to move to the destination field
      */
     public boolean checkDestField(Field src, Field dest) {
         Figure figure = src.get();

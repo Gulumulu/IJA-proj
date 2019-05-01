@@ -23,7 +23,6 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
 
     private Button newGameButton;
     private Button loadGameButton;
-    private Button saveGameButton;
     private Label appName;
     private SplitPane split;
     private Pane topPanel;
@@ -81,13 +80,11 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
 
         newGameButton = new Button("New Game");
         loadGameButton = new Button("Load Game");
-        saveGameButton = new Button("Save Game");
 
         appName = new Label("CHESS");
 
-        configButtons(newGameButton, 600);
-        configButtons(loadGameButton, 800);
-        configButtons(saveGameButton, 1000);
+        configButtons(newGameButton, 800);
+        configButtons(loadGameButton, 1000);
 
         appName.setFont(Font.font(60));
         appName.setLayoutX(50);
@@ -105,7 +102,7 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
         logoView.setX(250);
         logoView.setY(10);
 
-        topPanel.getChildren().addAll(appName, newGameButton, loadGameButton, saveGameButton, logoView);
+        topPanel.getChildren().addAll(appName, newGameButton, loadGameButton, logoView);
 
         scene = new Scene(split);
         primaryStage.setScene(scene);
@@ -123,8 +120,6 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
             createTab();
         } else if (event.getSource() == loadGameButton) {
             loadFile();
-        } else if (event.getSource() == saveGameButton) {
-            System.out.println("save");
         }
     }
 

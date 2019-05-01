@@ -45,6 +45,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private ImageView[][] imageView;
     private Image empty;
     private ImageView store;
+    private Label active;
+    private Label activePlayerColor;
 
     private Board chessBoard;
     private Chess chessGame;
@@ -59,6 +61,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private int moveCounter;
     private boolean moveFinished;
     private String halfMove;
+    private String output;
+
     private int activePlayer;
 
     /**
@@ -309,6 +313,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         int selectedCol = 0;
         int selectedRow = 0;
 
+        // get the column and row of the clicked on field
         for (int col = 0; col < 8; col++) {
             for (int row = 0; row < 8; row++) {
                 if (event.getSource() == boardField[col][row]) {
@@ -328,10 +333,26 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         }
 
         try {
+            // if the source field was not yet selected do so
             if (sourceField == null) {
+                // if the selected source field has a figure on it
                 if (chessBoard.getField(selectedCol + 1, selectedRow + 1).get() != null) {
-                    boardField[selectedCol][selectedRow].setStroke(Color.RED);
-                    sourceField = chessBoard.getField(selectedCol + 1, selectedRow + 1);
+                    // if the active player is 0, the source field has to have a white figure on it
+                    if (activePlayer == 0 && chessBoard.getField(selectedCol + 1, selectedRow + 1).get().isWhite()) {
+                        boardField[selectedCol][selectedRow].setStroke(Color.RED);
+                        sourceField = chessBoard.getField(selectedCol + 1, selectedRow + 1);
+                    }
+                    // if the active player is 1, the source field has to have a black figure on it
+                    else if (activePlayer == 1 && !chessBoard.getField(selectedCol + 1, selectedRow + 1).get().isWhite()) {
+                        boardField[selectedCol][selectedRow].setStroke(Color.RED);
+                        sourceField = chessBoard.getField(selectedCol + 1, selectedRow + 1);
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error!");
+                        alert.setHeaderText("Error while selecting a field!");
+                        alert.setContentText("The active player has to select their figure.");
+                        alert.showAndWait();
+                    }
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error!");
@@ -339,10 +360,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     alert.setContentText("The source field has to have a figure on it.");
                     alert.showAndWait();
                 }
-            } else if (sourceField == chessBoard.getField(selectedCol + 1, selectedRow + 1)) {
+            }
+            // if the source field is deselected
+            else if (sourceField == chessBoard.getField(selectedCol + 1, selectedRow + 1)) {
                 boardField[selectedCol][selectedRow].setStroke(Color.TRANSPARENT);
                 sourceField = null;
-            } else if (destField == null) {
+            }
+            // if the source field is already selected select the dest field
+            else if (destField == null) {
+                // if the destination field is incorrect
                 if (!chessGame.checkDestField(sourceField, chessBoard.getField(selectedCol + 1, selectedRow + 1))) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error!");
@@ -352,10 +378,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 } else {
                     boardField[selectedCol][selectedRow].setStroke(Color.RED);
                     destField = chessBoard.getField(selectedCol + 1, selectedRow + 1);
+                    // get the first part of the move for text area output
+                    getHalfMove();
                 }
-            } else if (destField == chessBoard.getField(selectedCol + 1, selectedRow + 1)) {
+            }
+            // if the dest field is deselected
+            else if (destField == chessBoard.getField(selectedCol + 1, selectedRow + 1)) {
                 boardField[selectedCol][selectedRow].setStroke(Color.TRANSPARENT);
                 destField = null;
+                halfMove = "";
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Warning!");
@@ -368,22 +399,35 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         }
     }
 
+    /**
+     * Method for moving the image when a figure was moved
+     *
+     * @param from the source image view with the image to be moved
+     * @param to the destination image view
+     */
     private void moveImage(ImageView from, ImageView to) {
         Image tmp = from.getImage();
         to.setImage(tmp);
         from.setImage(empty);
     }
 
+    /**
+     * Method that finishes the move of a figure on the board
+     */
     private void moveDest() {
         moveImage(imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1], imageView[destField.getColumn() - 1][destField.getRow() - 1]);
         boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
         boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        changeActivePlayer();
         writeMove();
         sourceField = null;
         destField = null;
         currentField = null;
     }
 
+    /**
+     * Method that does one step of the figure on the board
+     */
     private void moveStep() {
         moveImage(imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1], imageView[currentField.getColumn() - 1][currentField.getRow() - 1]);
         boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
@@ -391,6 +435,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
     }
 
+    /**
+     * Knight figure specific method that moves the knight by one step on the board
+     */
     private void moveKnight() {
         Image tmp = imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].getImage();
         imageView[currentField.getColumn() - 1][currentField.getRow() - 1].setImage(tmp);
@@ -400,21 +447,45 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
     }
 
+    /**
+     * Knight figure specific method that finishes the move on the board
+     */
     private void moveKnightDest() {
         Image tmp = imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].getImage();
         imageView[currentField.getColumn() - 1][currentField.getRow() - 1].setImage(tmp);
         imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].setImage(store.getImage());
         boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
         boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        changeActivePlayer();
         writeMove();
         sourceField = null;
         destField = null;
         currentField = null;
     }
 
+    private void changeActivePlayer() {
+        if (activePlayer == 0) {
+            moveFinished = false;
+            activePlayer = 1;
+            activePlayerColor.setText("black");
+        } else {
+            moveFinished = true;
+            activePlayer = 0;
+            activePlayerColor.setText("white");
+        }
+    }
+
+    /**
+     * Method for moving a figure on the board
+     * Determines the instance of the figure class and calls the necessary methods for realising the movement
+     *
+     * @return true if movement was successful
+     */
     private boolean moveFigureForward() {
+        // if the source figure is a knight
         if (sourceField.get() instanceof Knight || knight) {
             knight = true;
+            // set the initial movement direction
             if (sourceField.getRow() == destField.getRow() + 2) {
                 dir = "D";
                 original = sourceField;
@@ -433,50 +504,78 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             } else if ((dir.equals("L") || dir.equals("R")) && sourceField.getColumn() == destField.getColumn()) {
                 dir = "";
             }
+            // call the method that moves the knight in the backend
             currentField = chessGame.moveKnight(sourceField, destField, dir, original);
+            // if the next field is the destination field finish the move on the frontend
             if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
                 moveKnightDest();
                 store.setImage(empty);
                 original = null;
                 knight = false;
-            } else {
+            }
+            // move by one space on the frontend
+            else {
                 Image tmp = imageView[currentField.getColumn() - 1][currentField.getRow() - 1].getImage();
                 moveKnight();
                 store.setImage(tmp);
             }
-        } else if (sourceField.get() instanceof Tower) {
+        }
+        // if the source figure is a tower
+        else if (sourceField.get() instanceof Tower) {
+            // call the method that moves the knight in the backend
             currentField = chessGame.moveTower(sourceField, destField);
-            // if the current field is the destination field finish the move
+            // if the next field is the destination field finish the move on the frontend
             if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
                 moveDest();
-            } else {
+            }
+            // move by one space on the frontend
+            else {
                 moveStep();
             }
-        } else if (sourceField.get() instanceof Bishop) {
+        }
+        // if the source figure is a bishop
+        else if (sourceField.get() instanceof Bishop) {
+            // call the method that moves the knight in the backend
             currentField = chessGame.moveBishop(sourceField, destField);
-            // if the current field is the destination field finish the move
+            // if the next field is the destination field finish the move on the frontend
             if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
                 moveDest();
-            } else {
+            }
+            // move by one space on the frontend
+            else {
                 moveStep();
             }
-        } else if (sourceField.get() instanceof King) {
+        }
+        // if the source figure is a king
+        else if (sourceField.get() instanceof King) {
+            // call the method that moves the knight in the backend
             currentField = chessGame.moveKing(sourceField, destField);
+            // finish the move on the frontend
             moveDest();
-        } else if (sourceField.get() instanceof Queen) {
+        }
+        // if the source figure is a queen
+        else if (sourceField.get() instanceof Queen) {
+            // call the method that moves the knight in the backend
             currentField = chessGame.moveKing(sourceField, destField);
-            // if the current field is the destination field finish the move
+            // if the next field is the destination field finish the move on the frontend
             if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
                 moveDest();
-            } else {
+            }
+            // move by one space on the frontend
+            else {
                 moveStep();
             }
-        } else if (sourceField.get() instanceof Pawn) {
+        }
+        // if the source figure is a pawn
+        else if (sourceField.get() instanceof Pawn) {
+            // call the method that moves the knight in the backend
             currentField = chessGame.movePawn(sourceField, destField);
-            // if the current field is the destination field finish the move
+            // if the next field is the destination field finish the move on the frontend
             if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
                 moveDest();
-            } else {
+            }
+            // move by one space on the frontend
+            else {
                 moveStep();
             }
         }
@@ -488,41 +587,65 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
     }
 
+    /**
+     * Get the first half of the move for text output
+     * This consists of figure type, source field column, source field row, dest field column and dest field row
+     */
+    private void getHalfMove() {
+        int col, row;
+
+        // determine the type of the figure that moves
+        if (sourceField.get() instanceof King) {
+            halfMove = "K";
+        } else if (sourceField.get() instanceof Knight) {
+            halfMove = "J";
+        } else if (sourceField.get() instanceof Bishop) {
+            halfMove = "S";
+        } else if (sourceField.get() instanceof Queen) {
+            halfMove = "D";
+        } else if (sourceField.get() instanceof Tower) {
+            halfMove = "V";
+        } else {
+            halfMove = "";
+        }
+
+        // if long notation is selected get the source field info
+        if (longNotation.isSelected()) {
+            col = sourceField.getColumn();
+            col += 96;
+            row = sourceField.getRow();
+            halfMove = halfMove + (char)col + row;
+        }
+
+        // get the dest field info
+        col = destField.getColumn();
+        col += 96;
+        row = destField.getRow();
+        halfMove = halfMove + (char)col + row + " ";
+    }
+
+    /**
+     * Writes the completed move into the move log
+     */
     private void writeMove() {
         if (!moveFinished) {
+            output = output + halfMove;
             halfMove = "";
-
-            if (longNotation.isSelected()) {
-
-            }
-
-            if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof King) {
-                halfMove = "K";
-            } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Knight) {
-                halfMove = "J";
-            } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Bishop) {
-                halfMove = "S";
-            } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Queen) {
-                halfMove = "D";
-            } else if (chessBoard.getField(destField.getColumn(), destField.getRow()).get() instanceof Tower) {
-                halfMove = "V";
-            }
-
-            int col = destField.getColumn();
-            col += 96;
-            int row = destField.getRow();
-            halfMove = halfMove + (char)col + row + " ";
         } else {
             // if the user has selected short notations
             if (shortNotation.isSelected()) {
                 moveCounter++;
-                moveLog.appendText(moveCounter + ". H" + "\n");
+                output = output + halfMove;
+                moveLog.appendText(output + "\n");
             }
             // if the user has selected long notations
             else if (longNotation.isSelected()) {
                 moveCounter++;
-                moveLog.appendText(moveCounter + ". dddd" + "\n");
+                output = output + halfMove;
+                moveLog.appendText(output + "\n");
             }
+            System.out.println(output);
+            output = "";
         }
     }
 
@@ -540,6 +663,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
         empty = new Image("file:lib/res/empty.png");
 
+        activePlayer = 0;
+        output = "";
         knight = false;
         moveCounter = 0;
         moveFinished = false;
@@ -608,7 +733,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         });
 
         restartGame = new Button("Restart Game");
-        configureButtons(restartGame, 125, 50, 800, 180);
+        configureButtons(restartGame, 125, 50, 800, 185);
 
         stepBack = new Button("BACK");
         configureButtons(stepBack, 100, 35, 950, 50);
@@ -616,7 +741,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         stepForward = new Button("FORWARD");
         configureButtons(stepForward, 100, 35, 1050, 50);
 
-        speedText = new Label("Step speed in MS: ");
+        speedText = new Label("Step speed in MS:");
         speedText.setFont(Font.font(14));
         speedText.setLayoutX(950);
         speedText.setLayoutY(100);
@@ -624,10 +749,20 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         notation = new ToggleGroup();
 
         shortNotation = new RadioButton("Short Notation");
-        configureRadioButtons(shortNotation, 180, 1030, true, notation);
+        configureRadioButtons(shortNotation, 185, 1030, true, notation);
 
         longNotation = new RadioButton("Long Notation");
-        configureRadioButtons(longNotation, 210, 1030, false, notation);
+        configureRadioButtons(longNotation, 215, 1030, false, notation);
+
+        active = new Label("ACTIVE PLAYER:");
+        active.setFont(Font.font(20));
+        active.setLayoutX(800);
+        active.setLayoutY(140);
+
+        activePlayerColor = new Label("white");
+        activePlayerColor.setFont(Font.font(18));
+        activePlayerColor.setLayoutX(965);
+        activePlayerColor.setLayoutY(143);
 
         speedInput = new TextField();
         speedInput.setLayoutX(1080);
@@ -635,7 +770,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         speedInput.setPrefWidth(100);
         speedInput.setEditable(false);
 
-        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation);
+        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerColor);
 
         createBoard();
         initializeImages();

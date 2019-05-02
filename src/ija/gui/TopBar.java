@@ -86,8 +86,8 @@ public class TopBar extends Application implements EventHandler<ActionEvent> {
 
         appName = new Label("CHESS");
 
-        configButtons(newGameButton, 800);
-        configButtons(loadGameButton, 1000);
+        configButtons(newGameButton, 850);
+        configButtons(loadGameButton, 1020);
 
         appName.setFont(Font.font(60));
         appName.setLayoutX(50);

@@ -447,7 +447,7 @@ public class Chess {
         return true;
     }
 
-    public Field movePawn(Field src, Field dest) {
+    /*public Field movePawn(Field src, Field dest) {
         Field field;
 
         // if the pawn will move in a column
@@ -644,9 +644,9 @@ public class Chess {
         field = performMove(src, field);
 
         return field;
-    }
+    }*/
 
-    private Field performMove(Field src, Field field) {
+    public Field performMove(Field src, Field field) {
         if (field.get() != null) {
             field.remove(field.get());
             field.put(src.get());

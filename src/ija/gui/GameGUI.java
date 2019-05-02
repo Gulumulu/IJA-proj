@@ -22,6 +22,7 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,28 +31,32 @@ import java.util.List;
 public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
     private Pane layout;
+
     private Button saveGameButton;
-    private Label buttonText;
+    private Button restartGame;
+    private Button stepBack;
+    private Button stepForward;
+    private Button move;
+    private Button loadMoves;
     private TextArea moveLog;
+    private TextField speedInput;
     private RadioButton modeAuto;
     private RadioButton modeManual;
     private ToggleGroup buttonGroup;
     private RadioButton shortNotation;
     private RadioButton longNotation;
     private ToggleGroup notation;
-    private Button restartGame;
-    private Button stepBack;
-    private Button stepForward;
+    private Label buttonText;
     private Label speedText;
-    private TextField speedInput;
     private Label boardID;
+    private Label active;
+    private Label activePlayerColor;
+
     private Rectangle[][] boardField;
     private Image[][] images;
     private ImageView[][] imageView;
     private Image empty;
     private ImageView store;
-    private Label active;
-    private Label activePlayerColor;
 
     private Board chessBoard;
     private Chess chessGame;
@@ -59,9 +64,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private Field sourceField;
     private Field destField;
     private Field currentField;
+    private Field original;
     private String dir;
     private boolean knight;
-    private Field original;
 
     private int moveCounter;
     private boolean moveFinished;
@@ -71,6 +76,12 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private int activePlayer;
 
     private File loadFile;
+
+    private File movesFile;
+    private List<String> movesList;
+    private int movesListLocation;
+    private String[] splitMove;
+    private boolean white;
 
     /**
      * The constructor for the GameGUI class
@@ -109,6 +120,11 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         }
     }
 
+    /**
+     * Method places a figure from the loaded save file onto the chess board
+     *
+     * @param line the line read from the save file
+     */
     private void placeFigure(String line) {
         String color;
         int col;
@@ -187,6 +203,27 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         // if the line is not compatible
         else {
 
+        }
+    }
+
+    /**
+     * Method loads the moves from the move file into a list of strings
+     *
+     * @param file the move file containing the moves
+     */
+    private void storeMoves(File file) {
+        movesList = new ArrayList<>();
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file.getAbsolutePath()));
+            String line = reader.readLine();
+            while (line != null) {
+                movesList.add(line);
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            System.out.println("ERROR!");
         }
     }
 
@@ -585,6 +622,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         currentField = null;
     }
 
+    /**
+     * Method changes the active player after a player moves
+     */
     private void changeActivePlayer() {
         if (activePlayer == 0) {
             moveFinished = false;
@@ -603,7 +643,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
      *
      * @return true if movement was successful
      */
-    private boolean moveFigureForward() {
+    /*private boolean moveFigure() {
         // if the source figure is a knight
         if (sourceField.get() instanceof Knight || knight) {
             knight = true;
@@ -703,10 +743,438 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         }
 
         return true;
+    }*/
+
+    /**
+     * Method for getting the col number from a string
+     *
+     * @param string the string with the col letter
+     * @param pos the position of the letter in the string
+     * @return the col number
+     */
+    private int findCol(String string, int pos) {
+        int col = (int) string.charAt(pos) - 96;
+        //System.out.println(col);
+        return col;
     }
 
-    private void moveFigureBack() {
+    /**
+     * Method for getting the row number from a string
+     *
+     * @param string the string with the row number
+     * @param pos the position of the number in the string
+     * @return the row number
+     */
+    private int findRow(String string, int pos) {
+        int row = Character.getNumericValue(string.charAt(pos));
+        return row;
+    }
 
+    /**
+     * Method for getting the figure letter identifier from a string
+     *
+     * @param string the string with the figure identifier
+     * @param pos the position the the figure identifier in the string
+     * @return the figure identifier
+     */
+    private String findFigure(String string, int pos) {
+        String tmp = String.valueOf(string.charAt(pos));
+        return tmp;
+    }
+
+    /**
+     * Method finds the source field of the pawn that has to move
+     *
+     * @param destCol the destination field column
+     * @param destRow the destination field row
+     * @param white true if the sought pawn is white
+     * @return the source field for the move operation
+     */
+    private Field findPawn(int destCol, int destRow, boolean white) {
+        Field field;
+
+        if (white) {
+            if (chessBoard.getField(destCol, destRow - 1).get() != null && chessBoard.getField(destCol, destRow - 1).get().isWhite() && chessBoard.getField(destCol, destRow - 1).get() instanceof Pawn) {
+                field = chessBoard.getField(destCol, destRow - 1);
+            } else if (chessBoard.getField(destCol, destRow - 2).get() != null && chessBoard.getField(destCol, destRow - 2).get().isWhite() && chessBoard.getField(destCol, destRow - 2).get() instanceof Pawn) {
+                field = chessBoard.getField(destCol, destRow - 2);
+            } else if (chessBoard.getField(destCol - 1, destRow - 1).get() != null && chessBoard.getField(destCol - 1, destRow - 1).get().isWhite() && chessBoard.getField(destCol - 1, destRow - 1).get() instanceof Pawn) {
+                field = chessBoard.getField(destCol - 1, destRow - 1);
+            } else if (chessBoard.getField(destCol + 1, destRow - 1).get() != null && chessBoard.getField(destCol + 1, destRow - 1).get().isWhite() && chessBoard.getField(destCol + 1, destRow - 1).get() instanceof Pawn) {
+                field = chessBoard.getField(destCol + 1, destRow - 1);
+            } else {
+                field = null;
+            }
+        } else {
+            if (chessBoard.getField(destCol, destRow + 1).get() != null && !chessBoard.getField(destCol, destRow + 1).get().isWhite() && chessBoard.getField(destCol, destRow + 1).get() instanceof Pawn) {
+                field = chessBoard.getField(destCol, destRow + 1);
+            } else if (chessBoard.getField(destCol, destRow + 2).get() != null && !chessBoard.getField(destCol, destRow + 2).get().isWhite() && chessBoard.getField(destCol, destRow + 2).get() instanceof Pawn) {
+                field = chessBoard.getField(destCol, destRow + 2);
+            } else if (chessBoard.getField(destCol - 1, destRow + 1).get() != null && !chessBoard.getField(destCol - 1, destRow + 1).get().isWhite() && chessBoard.getField(destCol - 1, destRow + 1).get() instanceof Pawn) {
+                field = chessBoard.getField(destCol - 1, destRow + 1);
+            } else if (chessBoard.getField(destCol + 1, destRow + 1).get() != null && !chessBoard.getField(destCol + 1, destRow + 1).get().isWhite() && chessBoard.getField(destCol + 1, destRow + 1).get() instanceof Pawn) {
+                field = chessBoard.getField(destCol + 1, destRow + 1);
+            } else {
+                field = null;
+            }
+        }
+
+        return field;
+    }
+
+    /**
+     * Method finds the source field of the king that has to move
+     *
+     * @param destCol the destination field column
+     * @param destRow the destination field row
+     * @param white true if the sought king is white
+     * @return the source field for the move operation
+     */
+    private Field findKing(int destCol, int destRow, boolean white) {
+        Field field = null;
+
+        for (int col = destCol - 1; col <= destCol + 1; col++) {
+            for (int row = destRow - 1; row <= destRow + 1; row++) {
+                if (col >= 1 && col <= 8 && row >= 1 && row <= 8) {
+                    if (white) {
+                        if (chessBoard.getField(col, row).get() != null && chessBoard.getField(col, row).get() instanceof King && chessBoard.getField(col, row).get().isWhite()) {
+                            field = chessBoard.getField(col, row);
+                        } else {
+                            field = null;
+                        }
+                    } else {
+                        if (chessBoard.getField(col, row).get() != null && chessBoard.getField(col, row).get() instanceof King && !chessBoard.getField(col, row).get().isWhite()) {
+                            field = chessBoard.getField(col, row);
+                        } else {
+                            field = null;
+                        }
+                    }
+                }
+            }
+        }
+
+        return field;
+    }
+
+    /**
+     * Method finds the source field of the bishop or the queen that has to move
+     *
+     * @param destCol the destination field column
+     * @param destRow the destination field row
+     * @param white true if the sought bishop is white
+     * @param queen true if the algorithm is searching for a bishop source field
+     * @return the source field for the move operation
+     */
+    private Field findBishop(int destCol, int destRow, boolean white, boolean queen) {
+        Field field = null;
+
+        for (int col = 1; col <= 8; col++) {
+            for (int row = 1; row <= 8; row++) {
+               if (Math.abs(destCol - col) - Math.abs(destRow - row) == 0) {
+                   if (chessBoard.getField(col, row).get() != null && chessBoard.getField(col, row).get() instanceof Bishop && !queen) {
+                       if (white && chessBoard.getField(col, row).get().isWhite()) {
+                           field = chessBoard.getField(col, row);
+                       } else if (!white && !chessBoard.getField(col, row).get().isWhite()) {
+                           field = chessBoard.getField(col, row);
+                       }
+                   } else if (chessBoard.getField(col, row).get() != null && chessBoard.getField(col, row).get() instanceof Queen && queen) {
+                       if (white && chessBoard.getField(col, row).get().isWhite()) {
+                           field = chessBoard.getField(col, row);
+                       } else if (!white && !chessBoard.getField(col, row).get().isWhite()) {
+                           field = chessBoard.getField(col, row);
+                       }
+                   }
+               }
+            }
+        }
+
+        return field;
+    }
+
+    /**
+     * Method finds the source field of the tower or the queen that has to move
+     *
+     * @param destCol the destination field column
+     * @param destRow the destination field row
+     * @param white true if the sought tower is white
+     * @param queen true if the algorithm is searching for a queen source field
+     * @return the source field for the move operation
+     */
+    private Field findTower(int destCol, int destRow, boolean white, boolean queen) {
+        Field field = null;
+
+        for (int col = 1; col <= 8; col++) {
+            for (int row = 1; row <= 8; row++) {
+                if (!queen) {
+                    if (chessBoard.getField(col, destRow).get() != null && chessBoard.getField(col, destRow).get() instanceof Tower) {
+                        if (white && chessBoard.getField(col, destRow).get().isWhite()) {
+                            field = chessBoard.getField(col, destRow);
+                        } else if (!white && !chessBoard.getField(col, destRow).get().isWhite()) {
+                            field = chessBoard.getField(col, destRow);
+                        }
+                    } else if (chessBoard.getField(destCol, row).get() != null && chessBoard.getField(destCol, row).get() instanceof Tower) {
+                        if (white && chessBoard.getField(destCol, row).get().isWhite()) {
+                            field = chessBoard.getField(destCol, row);
+                        } else if (!white && !chessBoard.getField(destCol, row).get().isWhite()) {
+                            field = chessBoard.getField(destCol, row);
+                        }
+                    }
+                } else if (queen) {
+                    if (chessBoard.getField(col, destRow).get() != null && chessBoard.getField(col, destRow).get() instanceof Queen) {
+                        if (white && chessBoard.getField(col, destRow).get().isWhite()) {
+                            field = chessBoard.getField(col, destRow);
+                        } else if (!white && !chessBoard.getField(col, destRow).get().isWhite()) {
+                            field = chessBoard.getField(col, destRow);
+                        }
+                    } else if (chessBoard.getField(destCol, row).get() != null && chessBoard.getField(destCol, row).get() instanceof Queen) {
+                        if (white && chessBoard.getField(destCol, row).get().isWhite()) {
+                            field = chessBoard.getField(destCol, row);
+                        } else if (!white && !chessBoard.getField(destCol, row).get().isWhite()) {
+                            field = chessBoard.getField(destCol, row);
+                        }
+                    }
+                }
+            }
+        }
+
+        return field;
+    }
+
+    /**
+     * Method finds the source field of the knight that has to move
+     *
+     * @param destCol the destination field column
+     * @param destRow the destination field row
+     * @param white true if the sought knight is white
+     * @return the source field for the move operation
+     */
+    private Field findKnight(int destCol, int destRow, boolean white) {
+        Field field = null;
+
+        if (chessBoard.getField(destCol - 1, destRow - 2).get() != null && chessBoard.getField(destCol - 1, destRow - 2).get() instanceof Knight) {
+            if (chessBoard.getField(destCol - 1, destRow - 2).get().isWhite() && white) {
+                field = chessBoard.getField(destCol - 1, destRow - 2);
+            } else if (!chessBoard.getField(destCol - 1, destRow - 2).get().isWhite() && !white) {
+                field = chessBoard.getField(destCol - 1, destRow - 2);
+            }
+        } else if (chessBoard.getField(destCol + 1, destRow - 2).get() != null && chessBoard.getField(destCol + 1, destRow - 2).get() instanceof Knight) {
+            if (chessBoard.getField(destCol + 1, destRow - 2).get().isWhite() && white) {
+                field = chessBoard.getField(destCol + 1, destRow - 2);
+            } else if (!chessBoard.getField(destCol + 1, destRow - 2).get().isWhite() && !white) {
+                field = chessBoard.getField(destCol + 1, destRow - 2);
+            }
+        } else if (chessBoard.getField(destCol - 1, destRow + 2).get() != null && chessBoard.getField(destCol - 1, destRow + 2).get() instanceof Knight) {
+            if (chessBoard.getField(destCol - 1, destRow + 2).get().isWhite() && white) {
+                field = chessBoard.getField(destCol - 1, destRow + 2);
+            } else if (!chessBoard.getField(destCol - 1, destRow + 2).get().isWhite() && !white) {
+                field = chessBoard.getField(destCol - 1, destRow + 2);
+            }
+        } else if (chessBoard.getField(destCol + 1, destRow + 2).get() != null && chessBoard.getField(destCol + 1, destRow + 2).get() instanceof Knight) {
+            if (chessBoard.getField(destCol + 1, destRow + 2).get().isWhite() && white) {
+                field = chessBoard.getField(destCol + 1, destRow + 2);
+            } else if (!chessBoard.getField(destCol + 1, destRow + 2).get().isWhite() && !white) {
+                field = chessBoard.getField(destCol + 1, destRow + 2);
+            }
+        } else if (chessBoard.getField(destCol - 2, destRow - 1).get() != null && chessBoard.getField(destCol - 2, destRow - 1).get() instanceof Knight) {
+            if (chessBoard.getField(destCol - 2, destRow - 1).get().isWhite() && white) {
+                field = chessBoard.getField(destCol - 2, destRow - 1);
+            } else if (!chessBoard.getField(destCol - 2, destRow - 1).get().isWhite() && !white) {
+                field = chessBoard.getField(destCol - 2, destRow - 1);
+            }
+        } else if (chessBoard.getField(destCol - 2, destRow + 1).get() != null && chessBoard.getField(destCol - 2, destRow + 1).get() instanceof Knight) {
+            if (chessBoard.getField(destCol - 2, destRow + 1).get().isWhite() && white) {
+                field = chessBoard.getField(destCol - 2, destRow + 1);
+            } else if (!chessBoard.getField(destCol - 2, destRow + 1).get().isWhite() && !white) {
+                field = chessBoard.getField(destCol - 2, destRow + 1);
+            }
+        } else if (chessBoard.getField(destCol + 2, destRow - 1).get() != null && chessBoard.getField(destCol + 2, destRow - 1).get() instanceof Knight) {
+            if (chessBoard.getField(destCol + 2, destRow - 1).get().isWhite() && white) {
+                field = chessBoard.getField(destCol + 2, destRow - 1);
+            } else if (!chessBoard.getField(destCol + 2, destRow - 1).get().isWhite() && !white) {
+                field = chessBoard.getField(destCol + 2, destRow - 1);
+            }
+        } else if (chessBoard.getField(destCol + 2, destRow + 1).get() != null && chessBoard.getField(destCol + 2, destRow + 1).get() instanceof Knight) {
+            if (chessBoard.getField(destCol + 2, destRow + 1).get().isWhite() && white) {
+                field = chessBoard.getField(destCol + 2, destRow + 1);
+            } else if (!chessBoard.getField(destCol + 2, destRow + 1).get().isWhite() && !white) {
+                field = chessBoard.getField(destCol + 2, destRow + 1);
+            }
+        }
+
+        return field;
+    }
+
+    /**
+     * Method calls the needed function for finding a source field based on the type of figure that has to move
+     *
+     * @param col the destination field column
+     * @param row the destination field row
+     * @param white true if the figure that is moving is white
+     * @param figure the string indicating the type of the figure
+     */
+    private void getSource(int col, int row, boolean white, String figure) {
+        // set the source field based on the figure
+        if (figure.equals("J")) {
+            sourceField = findKnight(col, row, white);
+        } else if (figure.equals("K")) {
+            sourceField = findKing(col, row, white);
+        } else if (figure.equals("V")) {
+            sourceField = findTower(col, row, white, false);
+        } else if (figure.equals("S")) {
+            sourceField = findBishop(col, row, white, false);
+        } else if (figure.equals("D")) {
+            sourceField = findBishop(col, row, white, true);
+            if (sourceField == null) {
+                sourceField = findTower(col, row, white, true);
+            }
+        } else {
+            sourceField = findPawn(col, row, white);
+        }
+
+        if (sourceField != null) {
+            if (chessGame.checkDestField(sourceField, destField)) {
+                chessGame.performMove(sourceField, destField);
+                moveDest();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("Error while loading a move!");
+                alert.setContentText("Could not find the source field.");
+                alert.showAndWait();
+            }
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error!");
+            alert.setHeaderText("Error while loading a move!");
+            alert.setContentText("Could not find the source field.");
+            alert.showAndWait();
+        }
+    }
+
+    /**
+     * Method performs the movement of a figure that is defined in the moves file
+     */
+    private void doStepForward() {
+        if (white) {
+            movesListLocation++;
+            if (movesListLocation >= movesList.size()) {
+                movesListLocation--;
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("Error while loading a move!");
+                alert.setContentText("No more moves after this move found.");
+                alert.showAndWait();
+            } else {
+                int pos = 0;
+                String figure;
+                String string[] = movesList.get(movesListLocation).split("\\s+");
+
+                // find figure identifier
+                if ((int) string[1].charAt(pos) < 96) {
+                    figure = findFigure(string[1], pos);
+                    pos++;
+                } else {
+                    figure = "P";
+                }
+
+                // get figure col
+                int col = findCol(string[1], pos);
+                pos++;
+                // get figure row
+                int row = findRow(string[1], pos);
+
+                // set the destination field
+                destField = chessBoard.getField(col, row);
+                getSource(col, row, white, figure);
+            }
+        } else {
+            int pos = 0;
+            String figure;
+            String string[] = movesList.get(movesListLocation).split("\\s+");
+
+            // find figure identifier
+            if ((int) string[2].charAt(pos) < 96) {
+                figure = findFigure(string[2], pos);
+                pos++;
+            } else {
+                figure = "P";
+            }
+
+            // get figure col
+            int col = findCol(string[2], pos);
+            pos++;
+            // get figure row
+            int row = findRow(string[2], pos);
+
+            // set the destination field
+            destField = chessBoard.getField(col, row);
+            getSource(col, row, white, figure);
+        }
+    }
+
+    /**
+     * Method rolls back the move of the figure based on the move file
+     */
+    private void doStepBack() {
+        if (!white) {
+            movesListLocation--;
+            if (movesListLocation < 0) {
+                movesListLocation++;
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("Error while loading a move!");
+                alert.setContentText("No more moves before this move found.");
+                alert.showAndWait();
+            } else {
+                int pos = 0;
+                String figure;
+                String string[] = movesList.get(movesListLocation).split("\\s+");
+
+                // find figure identifier
+                if ((int) string[2].charAt(pos) < 96) {
+                    figure = findFigure(string[2], pos);
+                    pos++;
+                } else {
+                    figure = "P";
+                }
+
+                // get figure col
+                int col = findCol(string[2], pos);
+                pos++;
+                // get figure row
+                int row = findRow(string[2], pos);
+
+                // set the destination field
+                destField = chessBoard.getField(col, row);
+                getSource(col, row, white, figure);
+            }
+        } else {
+            int pos = 0;
+            String figure;
+            String string[] = movesList.get(movesListLocation).split("\\s+");
+
+            // find figure identifier
+            if ((int) string[1].charAt(pos) < 96) {
+                figure = findFigure(string[1], pos);
+                pos++;
+            } else {
+                figure = "P";
+            }
+
+            // get figure col
+            int col = findCol(string[1], pos);
+            pos++;
+            // get figure row
+            int row = findRow(string[1], pos);
+
+            System.out.println(figure);
+            System.out.println(col);
+            System.out.println(row);
+
+            // set the destination field
+            destField = chessBoard.getField(col, row);
+            getSource(col, row, white, figure);
+        }
     }
 
     /**
@@ -756,8 +1224,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         } else {
             moveCounter++;
             output = output + halfMove;
-            moveLog.appendText(output + "\n");
-            System.out.println(output);
+            moveLog.appendText(moveCounter + ". " + output + "\n");
             output = "";
         }
     }
@@ -781,6 +1248,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         knight = false;
         moveCounter = 0;
         moveFinished = false;
+        movesListLocation = -1;
+        white = true;
 
         store = new ImageView();
         store.setImage(empty);
@@ -791,9 +1260,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
         moveLog = new TextArea();
         moveLog.setLayoutX(800);
-        moveLog.setLayoutY(250);
+        moveLog.setLayoutY(300);
         moveLog.setPrefWidth(350);
-        moveLog.setPrefHeight(370);
+        moveLog.setPrefHeight(320);
 
         moveLog.setOnMouseClicked(evt -> {
             if (evt.getButton() == MouseButton.PRIMARY) {
@@ -819,15 +1288,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         buttonText = new Label("Select game mode:");
         buttonText.setFont(Font.font(22));
         buttonText.setLayoutX(800);
-        buttonText.setLayoutY(20);
+        buttonText.setLayoutY(70);
 
         buttonGroup = new ToggleGroup();
 
         modeManual = new RadioButton("Manual Mode");
-        configureRadioButtons(modeManual, 60, 800,true, buttonGroup);
+        configureRadioButtons(modeManual, 110, 800,true, buttonGroup);
 
         modeAuto = new RadioButton("Automatic Mode");
-        configureRadioButtons(modeAuto, 100, 800, false, buttonGroup);
+        configureRadioButtons(modeAuto, 150, 800, false, buttonGroup);
 
         buttonGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             @Override
@@ -845,22 +1314,34 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             }
         });
 
-        restartGame = new Button("Restart Game");
-        configureButtons(restartGame, 140, 50, 800, 185);
-
         stepBack = new Button("BACK");
-        configureButtons(stepBack, 100, 35, 950, 50);
+        configureButtons(stepBack, 100, 35, 940, 100);
 
         stepForward = new Button("FORWARD");
-        configureButtons(stepForward, 100, 35, 1050, 50);
+        configureButtons(stepForward, 100, 35, 1040, 100);
+
+        move = new Button("Move Figure");
+        configureButtons(move, 150, 50, 800, 10);
+
+        loadMoves = new Button("Load Moves");
+        configureButtons(loadMoves, 115, 50, 800, 240);
+
+        restartGame = new Button("Restart Game");
+        configureButtons(restartGame, 115, 50, 915, 240);
 
         saveGameButton = new Button("Save Game");
-        configureButtons(saveGameButton, 140, 50, 1010, 185);
+        configureButtons(saveGameButton, 115, 50, 1030, 240);
 
         speedText = new Label("Step speed in MS:");
         speedText.setFont(Font.font(14));
         speedText.setLayoutX(950);
-        speedText.setLayoutY(100);
+        speedText.setLayoutY(150);
+
+        speedInput = new TextField();
+        speedInput.setLayoutX(1080);
+        speedInput.setLayoutY(145);
+        speedInput.setPrefWidth(100);
+        speedInput.setEditable(false);
 
         notation = new ToggleGroup();
 
@@ -873,20 +1354,14 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         active = new Label("ACTIVE PLAYER:");
         active.setFont(Font.font(20));
         active.setLayoutX(800);
-        active.setLayoutY(140);
+        active.setLayoutY(200);
 
         activePlayerColor = new Label("white");
         activePlayerColor.setFont(Font.font(18));
         activePlayerColor.setLayoutX(965);
-        activePlayerColor.setLayoutY(143);
+        activePlayerColor.setLayoutY(203);
 
-        speedInput = new TextField();
-        speedInput.setLayoutX(1080);
-        speedInput.setLayoutY(95);
-        speedInput.setPrefWidth(100);
-        speedInput.setEditable(false);
-
-        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerColor, saveGameButton);
+        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerColor, saveGameButton, loadMoves, move);
 
         createBoard();
 
@@ -932,24 +1407,49 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 }
             }
 
-        } else if (event.getSource() == stepForward) {
+        } else if (event.getSource() == loadMoves) {
+            FileChooser fc = new FileChooser();
+            movesFile = fc.showOpenDialog(null);
+            if (movesFile.getName().matches("^.*.pgn$")) {
+                storeMoves(movesFile);
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("Error while opening a moves file!");
+                alert.setContentText("Save files are in a .pgn format.");
+                alert.showAndWait();
+            }
+        } else if (event.getSource() == move) {
             if (sourceField != null && destField != null) {
-                moveFigureForward();
+                chessGame.performMove(sourceField, destField);
+                moveDest();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning!");
+                alert.setHeaderText("Warning while clicking MOVE FIGURE!");
+                alert.setContentText("You have to select source and destination first.");
+                alert.showAndWait();
+            }
+        } else if (event.getSource() == stepForward) {
+            if (movesFile != null) {
+                doStepForward();
+                white = !white;
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Warning!");
                 alert.setHeaderText("Warning while clicking FORWARD!");
-                alert.setContentText("You have to select source and destination first.");
+                alert.setContentText("No moves file is loaded.");
                 alert.showAndWait();
             }
         } else if (event.getSource() == stepBack) {
-            if (sourceField != null && destField != null) {
-                moveFigureBack();
+            if (movesFile != null) {
+                white = !white;
+                doStepBack();
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Warning!");
                 alert.setHeaderText("Warning while clicking BACK!");
-                alert.setContentText("You have to select source and destination first.");
+                alert.setContentText("No moves file is loaded.");
                 alert.showAndWait();
             }
         }

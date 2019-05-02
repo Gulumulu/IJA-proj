@@ -5,6 +5,7 @@
             <fileset dir="build" includes="**/*"/>
             <fileset dir="dest" includes="**/*"/>
             <fileset dir="doc" includes="**/*"/>
+            <fileset dir="lib" includes="**/*" excludes="get_libs.sh"/>
         </delete>
     </target>
 
@@ -15,6 +16,13 @@
                 <attribute name="Main-Class" value="ija.Game"/>
             </manifest>
         </jar>
+        <chmod file="./lib/get_libs.sh" perm="a+x"/>
+        <exec dir="lib" executable="bash">
+            <arg value="get_libs.sh"/>
+        </exec>
+        <!--<javadoc destdir="doc">
+            <fileset dir="src/ija"/>
+        </javadoc>-->
     </target>
 
     <target name="run">

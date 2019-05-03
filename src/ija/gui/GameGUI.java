@@ -590,10 +590,12 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
      *
      * @param write states whether to write to the move log or not
      */
-    private void moveDest(boolean write) {
+    private void moveDest(boolean write, boolean noStroke) {
         moveImage(imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1], imageView[destField.getColumn() - 1][destField.getRow() - 1]);
-        boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
-        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        if (noStroke) {
+            boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
+            boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
+        }
         changeActivePlayer();
         if (write) {
             writeMove();
@@ -932,7 +934,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.RED);
                 chessGame.performMove(sourceField, destField);
                 src = source(figure);
-                moveDest(true);
+                moveDest(true, false);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error!");
@@ -958,9 +960,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
      */
     private void doStepForward(boolean write) {
         if (white) {
-            if (movesListLocation >= movesList.size()) {
+            if (movesListLocation == movesList.size()) {
                 movesListLocation--;
-                periodicAction.stop();
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error!");
                 alert.setHeaderText("Error while loading a move!");
@@ -1012,7 +1013,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.RED);
                     getHalfMove();
                     chessGame.performMove(sourceField, destField);
-                    moveDest(write);
+                    moveDest(write, false);
                 }
             }
         } else {
@@ -1061,7 +1062,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.RED);
                 getHalfMove();
                 chessGame.performMove(sourceField, destField);
-                moveDest(write);
+                moveDest(write, false);
             }
             movesListLocation++;
         }
@@ -1110,7 +1111,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
                 boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.RED);
                 chessGame.performMove(sourceField, destField);
-                moveDest(false);
+                moveDest(false, false);
             }
         } else {
             String string[] = movesList.get(movesListLocation).split("\\s+");
@@ -1142,7 +1143,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
             boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.RED);
             chessGame.performMove(sourceField, destField);
-            moveDest(false);
+            moveDest(false, false);
         }
     }
 
@@ -1458,7 +1459,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         } else if (event.getSource() == move) {
             if (sourceField != null && destField != null) {
                 chessGame.performMove(sourceField, destField);
-                moveDest(true);
+                moveLog.setText("");
+                moveDest(true, true);
                 white = !white;
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -1469,7 +1471,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             }
         } else if (event.getSource() == stepForward) {
             if (movesFile != null) {
-                //resetStrokes();
+                resetStrokes();
                 doStepForward(true);
                 white = !white;
             } else {

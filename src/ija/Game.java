@@ -15,7 +15,7 @@ public class Game {
      * The main method of the application
      * Starts the UI
      *
-     * @param args not necessary
+     * @param args necessary for java
      */
     public static void main(String[] args) {
         TopBar menu = new TopBar();

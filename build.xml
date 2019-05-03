@@ -11,7 +11,7 @@
 
     <target name="compile">
         <javac srcdir="src" destdir="build" includeantruntime="false"/>
-        <jar destfile="dest/ija-proj.jar" basedir="build">
+        <jar destfile="dest/ija-app.jar" basedir="build">
             <manifest>
                 <attribute name="Main-Class" value="ija.Game"/>
             </manifest>
@@ -20,13 +20,13 @@
         <exec dir="lib" executable="bash">
             <arg value="get_libs.sh"/>
         </exec>
-        <!--<javadoc destdir="doc">
+        <javadoc destdir="doc">
             <fileset dir="src/ija"/>
-        </javadoc>-->
+        </javadoc>
     </target>
 
     <target name="run">
-        <java jar="dest/ija-proj.jar" fork="true"/>
+        <java jar="dest/ija-app.jar" fork="true"/>
     </target>
 
 </project>

@@ -629,6 +629,12 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         return String.valueOf(string.charAt(pos));
     }
 
+    /**
+     * Method gets the source field location from the move string
+     *
+     * @param figure the figure identifier
+     * @return the string containing the figure identifier, column letter and row number
+     */
     private String source(String figure) {
         int srcCol = sourceField.getColumn();
         srcCol += 96;
@@ -889,6 +895,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
         if (sourceField != null) {
             if (chessGame.checkDestField(sourceField, destField)) {
+                getHalfMove();
                 chessGame.performMove(sourceField, destField);
                 src = source(figure);
                 moveDest();
@@ -965,6 +972,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     // perform the move
                     sourceField = chessBoard.getField(col, row);
                     destField = chessBoard.getField(destCol, destRow);
+                    getHalfMove();
                     chessGame.performMove(sourceField, destField);
                     moveDest();
                 }
@@ -1012,6 +1020,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 // perform the move
                 sourceField = chessBoard.getField(col, row);
                 destField = chessBoard.getField(destCol, destRow);
+                getHalfMove();
                 chessGame.performMove(sourceField, destField);
                 moveDest();
             }
@@ -1315,6 +1324,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             moveLog.setText("");
             sourceField = null;
             destField = null;
+            movesFile = null;
+            movesListLocation = 0;
+            if (activePlayer == 1) {
+                moveFinished = true;
+                activePlayer = 0;
+                activePlayerColor.setText("white");
+            }
+            output = null;
+            halfMove = null;
         } else if (event.getSource() == saveGameButton) {
             List<String> save = chessGame.getGameState();
             FileChooser fc = new FileChooser();
@@ -1350,6 +1368,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             if (sourceField != null && destField != null) {
                 chessGame.performMove(sourceField, destField);
                 moveDest();
+                white = !white;
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Warning!");

@@ -38,6 +38,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private Button stepForward;
     private Button move;
     private Button loadMoves;
+    private Button startAuto;
     private TextArea moveLog;
     private TextField speedInput;
     private RadioButton modeAuto;
@@ -63,10 +64,6 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
     private Field sourceField;
     private Field destField;
-    private Field currentField;
-    private Field original;
-    private String dir;
-    private boolean knight;
 
     private int moveCounter;
     private boolean moveFinished;
@@ -82,6 +79,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private int movesListLocation;
     private String[] splitMove;
     private boolean white;
+    private boolean autoON;
 
     /**
      * The constructor for the GameGUI class
@@ -581,45 +579,6 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         writeMove();
         sourceField = null;
         destField = null;
-        currentField = null;
-    }
-
-    /**
-     * Method that does one step of the figure on the board
-     */
-    private void moveStep() {
-        moveImage(imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1], imageView[currentField.getColumn() - 1][currentField.getRow() - 1]);
-        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
-        sourceField = currentField;
-        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
-    }
-
-    /**
-     * Knight figure specific method that moves the knight by one step on the board
-     */
-    private void moveKnight() {
-        Image tmp = imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].getImage();
-        imageView[currentField.getColumn() - 1][currentField.getRow() - 1].setImage(tmp);
-        imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].setImage(store.getImage());
-        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
-        sourceField = currentField;
-        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
-    }
-
-    /**
-     * Knight figure specific method that finishes the move on the board
-     */
-    private void moveKnightDest() {
-        Image tmp = imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].getImage();
-        imageView[currentField.getColumn() - 1][currentField.getRow() - 1].setImage(tmp);
-        imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1].setImage(store.getImage());
-        boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
-        boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
-        changeActivePlayer();
-        writeMove();
-        sourceField = null;
-        destField = null;
-        currentField = null;
     }
 
     /**
@@ -636,114 +595,6 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             activePlayerColor.setText("white");
         }
     }
-
-    /**
-     * Method for moving a figure on the board
-     * Determines the instance of the figure class and calls the necessary methods for realising the movement
-     *
-     * @return true if movement was successful
-     */
-    /*private boolean moveFigure() {
-        // if the source figure is a knight
-        if (sourceField.get() instanceof Knight || knight) {
-            knight = true;
-            // set the initial movement direction
-            if (sourceField.getRow() == destField.getRow() + 2) {
-                dir = "D";
-                original = sourceField;
-            } else if (sourceField.getRow() == destField.getRow() - 2) {
-                dir = "U";
-                original = sourceField;
-            } else if (sourceField.getColumn() == destField.getColumn() + 2) {
-                dir = "L";
-                original = sourceField;
-            } else if (sourceField.getColumn() == destField.getColumn() - 2) {
-                dir = "R";
-                original = sourceField;
-            }
-            if ((dir.equals("D") || dir.equals("U")) && sourceField.getRow() == destField.getRow()) {
-                dir = "";
-            } else if ((dir.equals("L") || dir.equals("R")) && sourceField.getColumn() == destField.getColumn()) {
-                dir = "";
-            }
-            // call the method that moves the knight in the backend
-            currentField = chessGame.moveKnight(sourceField, destField, dir, original);
-            // if the next field is the destination field finish the move on the frontend
-            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
-                moveKnightDest();
-                store.setImage(empty);
-                original = null;
-                knight = false;
-            }
-            // move by one space on the frontend
-            else {
-                Image tmp = imageView[currentField.getColumn() - 1][currentField.getRow() - 1].getImage();
-                moveKnight();
-                store.setImage(tmp);
-            }
-        }
-        // if the source figure is a tower
-        else if (sourceField.get() instanceof Tower) {
-            // call the method that moves the knight in the backend
-            currentField = chessGame.moveTower(sourceField, destField);
-            // if the next field is the destination field finish the move on the frontend
-            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
-                moveDest();
-            }
-            // move by one space on the frontend
-            else {
-                moveStep();
-            }
-        }
-        // if the source figure is a bishop
-        else if (sourceField.get() instanceof Bishop) {
-            // call the method that moves the knight in the backend
-            currentField = chessGame.moveBishop(sourceField, destField);
-            // if the next field is the destination field finish the move on the frontend
-            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
-                moveDest();
-            }
-            // move by one space on the frontend
-            else {
-                moveStep();
-            }
-        }
-        // if the source figure is a king
-        else if (sourceField.get() instanceof King) {
-            // call the method that moves the knight in the backend
-            currentField = chessGame.moveKing(sourceField, destField);
-            // finish the move on the frontend
-            moveDest();
-        }
-        // if the source figure is a queen
-        else if (sourceField.get() instanceof Queen) {
-            // call the method that moves the knight in the backend
-            currentField = chessGame.moveKing(sourceField, destField);
-            // if the next field is the destination field finish the move on the frontend
-            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
-                moveDest();
-            }
-            // move by one space on the frontend
-            else {
-                moveStep();
-            }
-        }
-        // if the source figure is a pawn
-        else if (sourceField.get() instanceof Pawn) {
-            // call the method that moves the knight in the backend
-            currentField = chessGame.movePawn(sourceField, destField);
-            // if the next field is the destination field finish the move on the frontend
-            if (currentField.getRow() == destField.getRow() && currentField.getColumn() == destField.getColumn()) {
-                moveDest();
-            }
-            // move by one space on the frontend
-            else {
-                moveStep();
-            }
-        }
-
-        return true;
-    }*/
 
     /**
      * Method for getting the col number from a string
@@ -1243,6 +1094,10 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         }
     }
 
+    private void autoMove() {
+
+    }
+
     /**
      * Get the first half of the move for text output
      * This consists of figure type, source field column, source field row, dest field column and dest field row
@@ -1311,11 +1166,11 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
         activePlayer = 0;
         output = "";
-        knight = false;
         moveCounter = 0;
         moveFinished = false;
         movesListLocation = 0;
         white = true;
+        autoON = false;
 
         store = new ImageView();
         store.setImage(empty);
@@ -1371,11 +1226,13 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     speedInput.setEditable(true);
                     stepBack.setDisable(true);
                     stepForward.setDisable(true);
+                    startAuto.setDisable(false);
                 } else if (buttonGroup.getSelectedToggle() == modeManual) {
                     speedInput.setEditable(false);
                     speedInput.setText("");
                     stepBack.setDisable(false);
                     stepForward.setDisable(false);
+                    startAuto.setDisable(true);
                 }
             }
         });
@@ -1385,6 +1242,10 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
         stepForward = new Button("FORWARD");
         configureButtons(stepForward, 100, 35, 1040, 100);
+
+        startAuto = new Button("START");
+        configureButtons(startAuto, 100, 35, 940, 180);
+        startAuto.setDisable(true);
 
         move = new Button("Move Figure");
         configureButtons(move, 150, 50, 800, 10);
@@ -1418,16 +1279,16 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         configureRadioButtons(longNotation, 630, 1000, false, notation);
 
         active = new Label("ACTIVE PLAYER:");
-        active.setFont(Font.font(20));
-        active.setLayoutX(800);
-        active.setLayoutY(200);
+        active.setFont(Font.font(18));
+        active.setLayoutX(970);
+        active.setLayoutY(40);
 
         activePlayerColor = new Label("white");
-        activePlayerColor.setFont(Font.font(18));
-        activePlayerColor.setLayoutX(965);
-        activePlayerColor.setLayoutY(203);
+        activePlayerColor.setFont(Font.font(16));
+        activePlayerColor.setLayoutX(1120);
+        activePlayerColor.setLayoutY(42);
 
-        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerColor, saveGameButton, loadMoves, move);
+        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerColor, saveGameButton, loadMoves, move, startAuto);
 
         createBoard();
 
@@ -1517,6 +1378,30 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 alert.setHeaderText("Warning while clicking BACK!");
                 alert.setContentText("No moves file is loaded.");
                 alert.showAndWait();
+            }
+        } else if (event.getSource() == startAuto) {
+            if (speedInput.getText().trim().isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning!");
+                alert.setHeaderText("Warning while clicking START!");
+                alert.setContentText("You have to set the move speed.");
+                alert.showAndWait();
+            } else {
+                if (movesFile != null) {
+                    autoON = !autoON;
+                    if (autoON) {
+                        startAuto.setText("STOP");
+                    } else {
+                        startAuto.setText("START");
+                    }
+                    System.out.println(speedInput.getText());
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Warning!");
+                    alert.setHeaderText("Warning while clicking START!");
+                    alert.setContentText("No moves file is loaded.");
+                    alert.showAndWait();
+                }
             }
         }
     }

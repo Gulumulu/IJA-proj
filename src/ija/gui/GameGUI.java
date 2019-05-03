@@ -4,6 +4,9 @@ import ija.figures.*;
 import ija.game.Board;
 import ija.game.Chess;
 import ija.game.Field;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -20,10 +23,13 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * The interface of a single game of Chess
@@ -80,6 +86,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private String[] splitMove;
     private boolean white;
     private boolean autoON;
+    private Timeline periodicAction;
 
     /**
      * The constructor for the GameGUI class
@@ -924,6 +931,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         if (white) {
             if (movesListLocation >= movesList.size()) {
                 movesListLocation--;
+                periodicAction.stop();
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error!");
                 alert.setHeaderText("Error while loading a move!");
@@ -1410,10 +1418,25 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     autoON = !autoON;
                     if (autoON) {
                         startAuto.setText("STOP");
+                        long period = Integer.parseInt(speedInput.getText());
+                        periodicAction = new Timeline(new KeyFrame(Duration.seconds(period / 1000), new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent event) {
+                                doStepForward();
+                                white = !white;
+                                if (movesListLocation == movesList.size()) {
+                                    periodicAction.stop();
+                                    startAuto.setText("START");
+                                    autoON = !autoON;
+                                }
+                            }
+                        }));
+                        periodicAction.setCycleCount(Timeline.INDEFINITE);
+                        periodicAction.play();
                     } else {
                         startAuto.setText("START");
+                        periodicAction.stop();
                     }
-                    System.out.println(speedInput.getText());
                 } else {
                     Alert alert = new Alert(Alert.AlertType.WARNING);
                     alert.setTitle("Warning!");

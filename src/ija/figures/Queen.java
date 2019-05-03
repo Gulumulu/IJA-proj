@@ -1,5 +1,11 @@
 package ija.figures;
 
+/**
+ * The class of a queen chess figure
+ *
+ * @author xquirs00 Gabriel Quirschfeld
+ * @author xjendr03 Martina Jendralova
+ */
 public class Queen implements Figure {
 
     private boolean isWhite;

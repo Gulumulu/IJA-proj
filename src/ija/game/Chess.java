@@ -6,6 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+/**
+ * The class for controlling the chess game
+ *
+ * @author xquirs00 Gabriel Quirschfeld
+ * @author xjendr03 Martina Jendralova
+ */
 public class Chess {
 
     private Board board;
@@ -223,6 +229,13 @@ public class Chess {
         return true;
     }
 
+    /**
+     * Method checks whether the tower can move from the source to the destination field
+     *
+     * @param src the source field with the tower on it
+     * @param dest the destination field
+     * @return true, if the movement can be performed
+     */
     private boolean checkTower(Field src, Field dest) {
         // if the tower moves is a column
         if (src.getColumn() == dest.getColumn()) {
@@ -264,6 +277,13 @@ public class Chess {
         return true;
     }
 
+    /**
+     * Method checks whether the bishop can move from the source to the destination field
+     *
+     * @param src the source field with the bishop on it
+     * @param dest the destination field
+     * @return true, if the movement can be performed
+     */
     private boolean checkBishop(Field src, Field dest) {
         int colSub = src.getColumn() - dest.getColumn();
         int rowSub = src.getRow() - dest.getRow();
@@ -351,6 +371,13 @@ public class Chess {
         return true;
     }
 
+    /**
+     * Method checks the up right diagonal between the source and destination fields to see if there are any figures there
+     *
+     * @param src the source field
+     * @param dest the destination field
+     * @return true, if there are no figures in between the fields
+     */
     private boolean checkURDiagonal(Field src, Field dest) {
         int fromCol = src.getColumn();
         int fromRow = src.getRow();
@@ -375,6 +402,13 @@ public class Chess {
         return true;
     }
 
+    /**
+     * Method checks the up left diagonal between the source and destination fields to see if there are any figures there
+     *
+     * @param src the source field
+     * @param dest the destination field
+     * @return true, if there are no figures in between the fields
+     */
     private boolean checkULDiagonal(Field src, Field dest) {
         int fromCol = src.getColumn();
         int fromRow = src.getRow();
@@ -399,6 +433,13 @@ public class Chess {
         return true;
     }
 
+    /**
+     * Method checks the down right diagonal between the source and destination fields to see if there are any figures there
+     *
+     * @param src the source field
+     * @param dest the destination field
+     * @return true, if there are no figures in between the fields
+     */
     private boolean checkDRDiagonal(Field src, Field dest) {
         int fromCol = src.getColumn();
         int fromRow = src.getRow();
@@ -423,6 +464,13 @@ public class Chess {
         return true;
     }
 
+    /**
+     * Method checks the down left diagonal between the source and destination fields to see if there are any figures there
+     *
+     * @param src the source field
+     * @param dest the destination field
+     * @return true, if there are no figures in between the fields
+     */
     private boolean checkDLDiagonal(Field src, Field dest) {
         int fromCol = src.getColumn();
         int fromRow = src.getRow();
@@ -447,6 +495,13 @@ public class Chess {
         return true;
     }
 
+    /**
+     * Method moves a figure from one field to another
+     *
+     * @param src the source field with the figure that has to be moved
+     * @param field the destination field for the figure to move to
+     * @return the destination field with the figure on it
+     */
     public Field performMove(Field src, Field field) {
         if (field.get() != null) {
             field.remove(field.get());

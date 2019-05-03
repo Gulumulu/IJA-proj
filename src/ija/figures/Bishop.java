@@ -1,5 +1,11 @@
 package ija.figures;
 
+/**
+ * The class of a bishop chess figure
+ *
+ * @author xquirs00 Gabriel Quirschfeld
+ * @author xjendr03 Martina Jendralova
+ */
 public class Bishop implements Figure {
 
     private boolean isWhite;

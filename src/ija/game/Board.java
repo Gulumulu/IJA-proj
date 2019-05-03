@@ -1,5 +1,11 @@
 package ija.game;
 
+/**
+ * The class for creating a game board
+ *
+ * @author xquirs00 Gabriel Quirschfeld
+ * @author xjendr03 Martina Jendralova
+ */
 public class Board {
 
     private int size; // dimension of the game (size x size)

@@ -30,6 +30,9 @@ import java.util.List;
 
 /**
  * The interface of a single game of Chess
+ *
+ * @author xquirs00 Gabriel Quirschfeld
+ * @author xjendr03 Martina Jendralova
  */
 public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
@@ -42,6 +45,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private Button move;
     private Button loadMoves;
     private Button startAuto;
+    private Button undo;
+    private Button redo;
     private TextArea moveLog;
     private TextField speedInput;
     private RadioButton modeAuto;
@@ -1309,7 +1314,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         });
 
         buttonText = new Label("Select game mode:");
-        buttonText.setFont(Font.font(22));
+        buttonText.setFont(Font.font(18));
         buttonText.setLayoutX(800);
         buttonText.setLayoutY(110);
 
@@ -1350,7 +1355,13 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         startAuto.setDisable(true);
 
         move = new Button("Move Figure");
-        configureButtons(move, 140, 50, 800, 10);
+        configureButtons(move, 140, 50, 800, 50);
+
+        undo = new Button("UNDO");
+        configureButtons(undo, 70, 50, 1000, 50);
+
+        redo = new Button("REDO");
+        configureButtons(redo, 70, 50, 1070, 50);
 
         loadMoves = new Button("Load Moves");
         configureButtons(loadMoves, 115, 50, 800, 280);
@@ -1381,9 +1392,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         configureRadioButtons(longNotation, 630, 1000, false, notation);
 
         active = new Label("ACTIVE PLAYER:");
-        active.setFont(Font.font(20));
+        active.setFont(Font.font(22));
         active.setLayoutX(800);
-        active.setLayoutY(75);
+        active.setLayoutY(13);
 
         activePlayerColor = new Rectangle();
         activePlayerColor.setWidth(30);
@@ -1392,15 +1403,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         activePlayerColor.setStroke(Color.BLACK);
         activePlayerColor.setFill(Color.WHITE);
         activePlayerColor.setStrokeWidth(1);
-        activePlayerColor.setX(965);
-        activePlayerColor.setY(67);
+        activePlayerColor.setX(990);
+        activePlayerColor.setY(7);
 
         activePlayerName = new Label("white");
         activePlayerName.setFont(Font.font(18));
-        activePlayerName.setLayoutX(1000);
-        activePlayerName.setLayoutY(78);
+        activePlayerName.setLayoutX(1025);
+        activePlayerName.setLayoutY(18);
 
-        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerName, saveGameButton, loadMoves, move, startAuto, activePlayerColor);
+        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerName, saveGameButton, loadMoves, move, startAuto, activePlayerColor, undo ,redo);
 
         createBoard();
 
@@ -1549,6 +1560,10 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     alert.showAndWait();
                 }
             }
+        } else if (event.getSource() == undo) {
+
+        } else if (event.getSource() == redo) {
+
         }
     }
 }

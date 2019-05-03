@@ -18,6 +18,9 @@ import java.io.File;
 
 /**
  * The class defines the top bar of the GUI and allows for creation of new chess games in the bottom part
+ *
+ * @author xquirs00 Gabriel Quirschfeld
+ * @author xjendr03 Martina Jendralova
  */
 public class TopBar extends Application implements EventHandler<ActionEvent> {
 

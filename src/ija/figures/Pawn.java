@@ -1,8 +1,11 @@
 package ija.figures;
 
-import ija.game.Field;
-import javafx.scene.layout.Pane;
-
+/**
+ * The class of a pawn chess figure
+ *
+ * @author xquirs00 Gabriel Quirschfeld
+ * @author xjendr03 Martina Jendralova
+ */
 public class Pawn implements Figure {
 
     private boolean isWhite;

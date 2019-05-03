@@ -3,7 +3,10 @@ package ija.game;
 import ija.figures.Figure;
 
 /**
- * Interface of a space on the game
+ * Interface of a space on the game board
+ *
+ * @author xquirs00 Gabriel Quirschfeld
+ * @author xjendr03 Martina Jendralova
  */
 public interface Field {
 
@@ -30,8 +33,18 @@ public interface Field {
      */
     void addNextField(Field.Direction dirs, Field field);
 
+    /**
+     * Method gets the column number of the field
+     *
+     * @return the column number
+     */
     int getColumn();
 
+    /**
+     * Method gets the row number of the field
+     *
+     * @return the row number
+     */
     int getRow();
 
     /**

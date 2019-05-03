@@ -2,6 +2,12 @@ package ija.game;
 
 import ija.figures.Figure;
 
+/**
+ * The class for specifying the aspects of a field on the game board
+ *
+ * @author xquirs00 Gabriel Quirschfeld
+ * @author xjendr03 Martina Jendralova
+ */
 public class BoardField implements Field {
 
     private int col; // identifier of the column

@@ -1273,13 +1273,13 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     } else {
                         back = false;
                     }
-                    periodicAction = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
+                    periodicAction = new Timeline(new KeyFrame(Duration.seconds(0.01), new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent event) {
                             if (tmp < movesListLocation - 1) {
                                 white = !white;
                                 doStepBack(false);
-                            } else if (tmp > movesListLocation + 1) {
+                            } else if (tmp >= movesListLocation + 1) {
                                 doStepForward(false);
                                 white = !white;
                             } else {
@@ -1287,7 +1287,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                                     white = !white;
                                     doStepBack(false);
                                 } else {
-                                    doStepForward(true);
+                                    doStepForward(false);
+                                    white = !white;
+                                    doStepForward(false);
                                     white = !white;
                                 }
                                 periodicAction.stop();

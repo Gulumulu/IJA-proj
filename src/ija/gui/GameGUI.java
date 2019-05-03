@@ -1064,7 +1064,6 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
      */
     private void doStepForward() {
         if (white) {
-            movesListLocation++;
             if (movesListLocation >= movesList.size()) {
                 movesListLocation--;
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -1077,33 +1076,47 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 String figure;
                 String string[] = movesList.get(movesListLocation).split("\\s+");
 
-                if (string[1].length() <= 3) {
-                    // find figure identifier
-                    if ((int) string[1].charAt(pos) < 96) {
-                        figure = findFigure(string[1], pos);
-                        pos++;
-                    } else {
-                        figure = "";
-                    }
-                    // get figure col
-                    int col = findCol(string[1], pos);
+                // find figure identifier
+                if ((int) string[1].charAt(pos) < 96) {
+                    figure = findFigure(string[1], pos);
                     pos++;
-                    // get figure row
-                    int row = findRow(string[1], pos);
+                } else {
+                    figure = "";
+                }
+                // get figure col
+                int col = findCol(string[1], pos);
+                pos++;
+                // get figure row
+                int row = findRow(string[1], pos);
 
+                if (string[1].length() <= 3) {
                     // set the destination field
                     destField = chessBoard.getField(col, row);
 
                     String src = getSource(col, row, white, figure);
                     if (src != null) {
                         src = string[0] + " " + src + string[1] + " " + string[2];
-                        movesList.add(movesListLocation, src);
+                        movesList.set(movesListLocation, src);
                         System.out.println(movesList.get(movesListLocation));
                     }
                 } else {
-                    
-                }
+                    if (figure.equals("")) {
+                        pos++;
+                    } else {
+                        pos += 2;
+                    }
+                    //get the dest field column
+                    int destCol = findCol(string[1], pos);
+                    pos++;
+                    // get the dest field row
+                    int destRow = findRow(string[1], pos);
 
+                    // perform the move
+                    sourceField = chessBoard.getField(col, row);
+                    destField = chessBoard.getField(destCol, destRow);
+                    chessGame.performMove(sourceField, destField);
+                    moveDest();
+                }
             }
         } else {
             int pos = 0;
@@ -1123,21 +1136,42 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             // get figure row
             int row = findRow(string[2], pos);
 
-            // set the destination field
-            destField = chessBoard.getField(col, row);
-            String src = getSource(col, row, white, figure);
-            if (src != null) {
-                src = string[0] + " " + string[1] + " " + src + string[2];
-                movesList.add(movesListLocation, src);
-                System.out.println(movesList.get(movesListLocation));
+            if (string[2].length() <= 3) {
+                // set the destination field
+                destField = chessBoard.getField(col, row);
+
+                String src = getSource(col, row, white, figure);
+                if (src != null) {
+                    src = string[0] + " " + string[1] + " " + src + string[2];
+                    movesList.set(movesListLocation, src);
+                    System.out.println(movesList.get(movesListLocation));
+                }
+            } else {
+                if (figure.equals("")) {
+                    pos++;
+                } else {
+                    pos += 2;
+                }
+                //get the dest field column
+                int destCol = findCol(string[2], pos);
+                pos++;
+                // get the dest field row
+                int destRow = findRow(string[2], pos);
+
+                // perform the move
+                sourceField = chessBoard.getField(col, row);
+                destField = chessBoard.getField(destCol, destRow);
+                chessGame.performMove(sourceField, destField);
+                moveDest();
             }
+            movesListLocation++;
         }
     }
 
     /**
      * Method rolls back the move of the figure based on the move file
      */
-    /*private void doStepBack() {
+    private void doStepBack() {
         if (!white) {
             movesListLocation--;
             if (movesListLocation < 0) {
@@ -1148,56 +1182,66 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 alert.setContentText("No more moves before this move found.");
                 alert.showAndWait();
             } else {
+                String string[] = movesList.get(movesListLocation).split("\\s+");
+
                 int pos = 0;
                 String figure;
-                String string[] = movesList.get(movesListLocation).split("\\s+");
 
                 // find figure identifier
                 if ((int) string[2].charAt(pos) < 96) {
                     figure = findFigure(string[2], pos);
                     pos++;
                 } else {
-                    figure = "P";
+                    figure = "";
                 }
-
-                // get figure col
-                int col = findCol(string[2], pos);
+                int destCol = findCol(string[2], pos);
                 pos++;
-                // get figure row
-                int row = findRow(string[2], pos);
+                int destRow = findRow(string[2], pos);
+                if (figure.equals("")) {
+                    pos++;
+                } else {
+                    pos += 2;
+                }
+                int srcCol = findCol(string[2], pos);
+                pos++;
+                int srcRow = findRow(string[2], pos);
 
-                // set the destination field
-                destField = chessBoard.getField(col, row);
-                getSource(col, row, white, figure);
+                sourceField = chessBoard.getField(srcCol, srcRow);
+                destField = chessBoard.getField(destCol, destRow);
+                chessGame.performMove(sourceField, destField);
+                moveDest();
             }
         } else {
+            String string[] = movesList.get(movesListLocation).split("\\s+");
+
             int pos = 0;
             String figure;
-            String string[] = movesList.get(movesListLocation).split("\\s+");
 
             // find figure identifier
             if ((int) string[1].charAt(pos) < 96) {
                 figure = findFigure(string[1], pos);
                 pos++;
             } else {
-                figure = "P";
+                figure = "";
             }
-
-            // get figure col
-            int col = findCol(string[1], pos);
+            int destCol = findCol(string[1], pos);
             pos++;
-            // get figure row
-            int row = findRow(string[1], pos);
+            int destRow = findRow(string[1], pos);
+            if (figure.equals("")) {
+                pos++;
+            } else {
+                pos += 2;
+            }
+            int srcCol = findCol(string[1], pos);
+            pos++;
+            int srcRow = findRow(string[1], pos);
 
-            System.out.println(figure);
-            System.out.println(col);
-            System.out.println(row);
-
-            // set the destination field
-            destField = chessBoard.getField(col, row);
-            getSource(col, row, white, figure);
+            sourceField = chessBoard.getField(srcCol, srcRow);
+            destField = chessBoard.getField(destCol, destRow);
+            chessGame.performMove(sourceField, destField);
+            moveDest();
         }
-    }*/
+    }
 
     /**
      * Get the first half of the move for text output
@@ -1270,7 +1314,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         knight = false;
         moveCounter = 0;
         moveFinished = false;
-        movesListLocation = -1;
+        movesListLocation = 0;
         white = true;
 
         store = new ImageView();
@@ -1466,7 +1510,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         } else if (event.getSource() == stepBack) {
             if (movesFile != null) {
                 white = !white;
-                //doStepBack();
+                doStepBack();
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Warning!");

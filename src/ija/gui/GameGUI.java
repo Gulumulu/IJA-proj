@@ -1537,6 +1537,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                         periodicAction = new Timeline(new KeyFrame(Duration.seconds(period / 1000), new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
+                                resetStrokes();
                                 doStepForward(true);
                                 white = !white;
                                 if (movesListLocation == movesList.size()) {

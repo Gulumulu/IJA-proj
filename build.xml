@@ -10,11 +10,14 @@
     </target>
 
     <target name="compile">
-        <javac srcdir="src" destdir="build" includeantruntime="false"/>
+        <javac srcdir="src" destdir="build" includeantruntime="true"/>
         <jar destfile="dest/ija-app.jar" basedir="build">
             <manifest>
                 <attribute name="Main-Class" value="ija.Game"/>
             </manifest>
+            <fileset dir="lib">
+                <include name="res/**" />
+            </fileset>
         </jar>
         <chmod file="./lib/get_libs.sh" perm="a+x"/>
         <exec dir="lib" executable="bash">

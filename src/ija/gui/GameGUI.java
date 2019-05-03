@@ -54,7 +54,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     private Label speedText;
     private Label boardID;
     private Label active;
-    private Label activePlayerColor;
+    private Label activePlayerName;
+    private Rectangle activePlayerColor;
 
     private Rectangle[][] boardField;
     private Image[][] images;
@@ -611,11 +612,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         if (activePlayer == 0) {
             moveFinished = false;
             activePlayer = 1;
-            activePlayerColor.setText("black");
+            activePlayerName.setText("black");
+            activePlayerColor.setStroke(Color.WHITE);
+            activePlayerColor.setFill(Color.BLACK);
         } else {
             moveFinished = true;
             activePlayer = 0;
-            activePlayerColor.setText("white");
+            activePlayerName.setText("white");
+            activePlayerColor.setStroke(Color.BLACK);
+            activePlayerColor.setFill(Color.WHITE);
         }
     }
 
@@ -1241,12 +1246,12 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
         moveLog = new TextArea();
         moveLog.setLayoutX(800);
-        moveLog.setLayoutY(300);
+        moveLog.setLayoutY(340);
         moveLog.setPrefWidth(350);
-        moveLog.setPrefHeight(320);
+        moveLog.setPrefHeight(280);
 
         moveLog.setOnMouseClicked(evt -> {
-            if (evt.getButton() == MouseButton.PRIMARY) {
+            if (evt.getButton() == MouseButton.PRIMARY && movesFile != null) {
                 int position = -1;
                 Node node = evt.getPickResult().getIntersectedNode();
                 while (node != moveLog) {
@@ -1306,15 +1311,15 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         buttonText = new Label("Select game mode:");
         buttonText.setFont(Font.font(22));
         buttonText.setLayoutX(800);
-        buttonText.setLayoutY(70);
+        buttonText.setLayoutY(110);
 
         buttonGroup = new ToggleGroup();
 
         modeManual = new RadioButton("Manual Mode");
-        configureRadioButtons(modeManual, 110, 800,true, buttonGroup);
+        configureRadioButtons(modeManual, 150, 800,true, buttonGroup);
 
         modeAuto = new RadioButton("Automatic Mode");
-        configureRadioButtons(modeAuto, 150, 800, false, buttonGroup);
+        configureRadioButtons(modeAuto, 190, 800, false, buttonGroup);
 
         buttonGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             @Override
@@ -1335,36 +1340,36 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         });
 
         stepBack = new Button("BACK");
-        configureButtons(stepBack, 100, 35, 940, 100);
+        configureButtons(stepBack, 100, 35, 940, 140);
 
         stepForward = new Button("FORWARD");
-        configureButtons(stepForward, 100, 35, 1040, 100);
+        configureButtons(stepForward, 100, 35, 1040, 140);
 
         startAuto = new Button("START");
-        configureButtons(startAuto, 100, 35, 940, 180);
+        configureButtons(startAuto, 100, 35, 1040, 220);
         startAuto.setDisable(true);
 
         move = new Button("Move Figure");
-        configureButtons(move, 150, 50, 800, 10);
+        configureButtons(move, 140, 50, 800, 10);
 
         loadMoves = new Button("Load Moves");
-        configureButtons(loadMoves, 115, 50, 800, 240);
+        configureButtons(loadMoves, 115, 50, 800, 280);
 
         restartGame = new Button("Restart Game");
-        configureButtons(restartGame, 115, 50, 915, 240);
+        configureButtons(restartGame, 115, 50, 915, 280);
 
         saveGameButton = new Button("Save Game");
-        configureButtons(saveGameButton, 115, 50, 1030, 240);
+        configureButtons(saveGameButton, 115, 50, 1030, 280);
 
         speedText = new Label("Step speed in MS:");
         speedText.setFont(Font.font(14));
-        speedText.setLayoutX(950);
-        speedText.setLayoutY(150);
+        speedText.setLayoutX(940);
+        speedText.setLayoutY(190);
 
         speedInput = new TextField();
-        speedInput.setLayoutX(1080);
-        speedInput.setLayoutY(145);
-        speedInput.setPrefWidth(100);
+        speedInput.setLayoutX(1070);
+        speedInput.setLayoutY(185);
+        speedInput.setPrefWidth(80);
         speedInput.setEditable(false);
 
         notation = new ToggleGroup();
@@ -1376,16 +1381,26 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         configureRadioButtons(longNotation, 630, 1000, false, notation);
 
         active = new Label("ACTIVE PLAYER:");
-        active.setFont(Font.font(18));
-        active.setLayoutX(970);
-        active.setLayoutY(40);
+        active.setFont(Font.font(20));
+        active.setLayoutX(800);
+        active.setLayoutY(75);
 
-        activePlayerColor = new Label("white");
-        activePlayerColor.setFont(Font.font(16));
-        activePlayerColor.setLayoutX(1120);
-        activePlayerColor.setLayoutY(42);
+        activePlayerColor = new Rectangle();
+        activePlayerColor.setWidth(30);
+        activePlayerColor.setHeight(30);
+        activePlayerColor.setStrokeType(StrokeType.INSIDE);
+        activePlayerColor.setStroke(Color.BLACK);
+        activePlayerColor.setFill(Color.WHITE);
+        activePlayerColor.setStrokeWidth(1);
+        activePlayerColor.setX(965);
+        activePlayerColor.setY(67);
 
-        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerColor, saveGameButton, loadMoves, move, startAuto);
+        activePlayerName = new Label("white");
+        activePlayerName.setFont(Font.font(18));
+        activePlayerName.setLayoutX(1000);
+        activePlayerName.setLayoutY(78);
+
+        layout.getChildren().addAll(moveLog, modeAuto, modeManual, buttonText, restartGame, speedText, speedInput, stepBack, stepForward, shortNotation, longNotation, active, activePlayerName, saveGameButton, loadMoves, move, startAuto, activePlayerColor);
 
         createBoard();
 
@@ -1417,7 +1432,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             if (activePlayer == 1) {
                 moveFinished = true;
                 activePlayer = 0;
-                activePlayerColor.setText("white");
+                activePlayerName.setText("white");
             }
             output = null;
             halfMove = null;
@@ -1459,7 +1474,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         } else if (event.getSource() == move) {
             if (sourceField != null && destField != null) {
                 chessGame.performMove(sourceField, destField);
-                moveLog.setText("");
+                if (autoON) {
+                    moveLog.setText("");
+                }
                 moveDest(true, true);
                 white = !white;
             } else {

@@ -753,9 +753,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
      * @return the col number
      */
     private int findCol(String string, int pos) {
-        int col = (int) string.charAt(pos) - 96;
-        //System.out.println(col);
-        return col;
+        return (int) string.charAt(pos) - 96;
     }
 
     /**
@@ -766,8 +764,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
      * @return the row number
      */
     private int findRow(String string, int pos) {
-        int row = Character.getNumericValue(string.charAt(pos));
-        return row;
+        return Character.getNumericValue(string.charAt(pos));
     }
 
     /**
@@ -778,8 +775,14 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
      * @return the figure identifier
      */
     private String findFigure(String string, int pos) {
-        String tmp = String.valueOf(string.charAt(pos));
-        return tmp;
+        return String.valueOf(string.charAt(pos));
+    }
+
+    private String source(String figure) {
+        int srcCol = sourceField.getColumn();
+        srcCol += 96;
+        int srcRow = sourceField.getRow();
+        return figure + (char) srcCol + srcRow;
     }
 
     /**
@@ -1012,7 +1015,9 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
      * @param white true if the figure that is moving is white
      * @param figure the string indicating the type of the figure
      */
-    private void getSource(int col, int row, boolean white, String figure) {
+    private String getSource(int col, int row, boolean white, String figure) {
+        String src = null;
+
         // set the source field based on the figure
         if (figure.equals("J")) {
             sourceField = findKnight(col, row, white);
@@ -1034,6 +1039,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         if (sourceField != null) {
             if (chessGame.checkDestField(sourceField, destField)) {
                 chessGame.performMove(sourceField, destField);
+                src = source(figure);
                 moveDest();
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -1049,6 +1055,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             alert.setContentText("Could not find the source field.");
             alert.showAndWait();
         }
+
+        return src;
     }
 
     /**
@@ -1069,23 +1077,33 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 String figure;
                 String string[] = movesList.get(movesListLocation).split("\\s+");
 
-                // find figure identifier
-                if ((int) string[1].charAt(pos) < 96) {
-                    figure = findFigure(string[1], pos);
+                if (string[1].length() <= 3) {
+                    // find figure identifier
+                    if ((int) string[1].charAt(pos) < 96) {
+                        figure = findFigure(string[1], pos);
+                        pos++;
+                    } else {
+                        figure = "";
+                    }
+                    // get figure col
+                    int col = findCol(string[1], pos);
                     pos++;
+                    // get figure row
+                    int row = findRow(string[1], pos);
+
+                    // set the destination field
+                    destField = chessBoard.getField(col, row);
+
+                    String src = getSource(col, row, white, figure);
+                    if (src != null) {
+                        src = string[0] + " " + src + string[1] + " " + string[2];
+                        movesList.add(movesListLocation, src);
+                        System.out.println(movesList.get(movesListLocation));
+                    }
                 } else {
-                    figure = "P";
+                    
                 }
 
-                // get figure col
-                int col = findCol(string[1], pos);
-                pos++;
-                // get figure row
-                int row = findRow(string[1], pos);
-
-                // set the destination field
-                destField = chessBoard.getField(col, row);
-                getSource(col, row, white, figure);
             }
         } else {
             int pos = 0;
@@ -1097,9 +1115,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 figure = findFigure(string[2], pos);
                 pos++;
             } else {
-                figure = "P";
+                figure = "";
             }
-
             // get figure col
             int col = findCol(string[2], pos);
             pos++;
@@ -1108,14 +1125,19 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
             // set the destination field
             destField = chessBoard.getField(col, row);
-            getSource(col, row, white, figure);
+            String src = getSource(col, row, white, figure);
+            if (src != null) {
+                src = string[0] + " " + string[1] + " " + src + string[2];
+                movesList.add(movesListLocation, src);
+                System.out.println(movesList.get(movesListLocation));
+            }
         }
     }
 
     /**
      * Method rolls back the move of the figure based on the move file
      */
-    private void doStepBack() {
+    /*private void doStepBack() {
         if (!white) {
             movesListLocation--;
             if (movesListLocation < 0) {
@@ -1175,7 +1197,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             destField = chessBoard.getField(col, row);
             getSource(col, row, white, figure);
         }
-    }
+    }*/
 
     /**
      * Get the first half of the move for text output
@@ -1444,7 +1466,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         } else if (event.getSource() == stepBack) {
             if (movesFile != null) {
                 white = !white;
-                doStepBack();
+                //doStepBack();
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Warning!");

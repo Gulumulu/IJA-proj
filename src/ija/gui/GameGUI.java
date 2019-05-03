@@ -6,7 +6,6 @@ import ija.game.Chess;
 import ija.game.Field;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -28,8 +27,6 @@ import javafx.util.Duration;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * The interface of a single game of Chess
@@ -394,6 +391,11 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         placeImageViews(true);
     }
 
+    /**
+     * Method places images on the board for a game of chess
+     *
+     * @param newGame indicates whether the game of chess is new or loaded
+     */
     private void placeImageViews(boolean newGame) {
         int rowCount = 7;
 
@@ -410,6 +412,14 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         }
     }
 
+    /**
+     * Method creates an image view for a field on the chess board
+     *
+     * @param col the column of the field
+     * @param rowCount the identifier for the image view array
+     * @param row the row of the board
+     * @param newGame indicates whether the game of chess is new or loaded
+     */
     private void makeView(int col, int rowCount, int row, boolean newGame) {
         if (newGame) {
             imageView[col][rowCount] = new ImageView();
@@ -577,13 +587,17 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
     /**
      * Method that finishes the move of a figure on the board
+     *
+     * @param write states whether to write to the move log or not
      */
-    private void moveDest() {
+    private void moveDest(boolean write) {
         moveImage(imageView[sourceField.getColumn() - 1][sourceField.getRow() - 1], imageView[destField.getColumn() - 1][destField.getRow() - 1]);
         boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.TRANSPARENT);
         boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.TRANSPARENT);
         changeActivePlayer();
-        writeMove();
+        if (write) {
+            writeMove();
+        }
         sourceField = null;
         destField = null;
     }
@@ -872,6 +886,17 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     }
 
     /**
+     * Method sets all the tiles to the default state
+     */
+    private void resetStrokes() {
+        for (int col = 0; col <= 7; col++) {
+            for (int row = 0; row <= 7; row++) {
+                boardField[col][row].setStroke(Color.TRANSPARENT);
+            }
+        }
+    }
+
+    /**
      * Method calls the needed function for finding a source field based on the type of figure that has to move
      *
      * @param col the destination field column
@@ -903,9 +928,11 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         if (sourceField != null) {
             if (chessGame.checkDestField(sourceField, destField)) {
                 getHalfMove();
+                boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
+                boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.RED);
                 chessGame.performMove(sourceField, destField);
                 src = source(figure);
-                moveDest();
+                moveDest(true);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error!");
@@ -926,8 +953,10 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
     /**
      * Method performs the movement of a figure that is defined in the moves file
+     *
+     * @param write states whether the move should be written or not
      */
-    private void doStepForward() {
+    private void doStepForward(boolean write) {
         if (white) {
             if (movesListLocation >= movesList.size()) {
                 movesListLocation--;
@@ -963,7 +992,6 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     if (src != null) {
                         src = string[0] + " " + src + string[1] + " " + string[2];
                         movesList.set(movesListLocation, src);
-                        System.out.println(movesList.get(movesListLocation));
                     }
                 } else {
                     if (figure.equals("")) {
@@ -980,9 +1008,11 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                     // perform the move
                     sourceField = chessBoard.getField(col, row);
                     destField = chessBoard.getField(destCol, destRow);
+                    boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
+                    boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.RED);
                     getHalfMove();
                     chessGame.performMove(sourceField, destField);
-                    moveDest();
+                    moveDest(write);
                 }
             }
         } else {
@@ -1011,7 +1041,6 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 if (src != null) {
                     src = string[0] + " " + string[1] + " " + src + string[2];
                     movesList.set(movesListLocation, src);
-                    System.out.println(movesList.get(movesListLocation));
                 }
             } else {
                 if (figure.equals("")) {
@@ -1028,9 +1057,11 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                 // perform the move
                 sourceField = chessBoard.getField(col, row);
                 destField = chessBoard.getField(destCol, destRow);
+                boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
+                boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.RED);
                 getHalfMove();
                 chessGame.performMove(sourceField, destField);
-                moveDest();
+                moveDest(write);
             }
             movesListLocation++;
         }
@@ -1039,7 +1070,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
     /**
      * Method rolls back the move of the figure based on the move file
      */
-    private void doStepBack() {
+    private void doStepBack(boolean del) {
         if (!white) {
             movesListLocation--;
             if (movesListLocation < 0) {
@@ -1076,8 +1107,10 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
                 sourceField = chessBoard.getField(srcCol, srcRow);
                 destField = chessBoard.getField(destCol, destRow);
+                boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
+                boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.RED);
                 chessGame.performMove(sourceField, destField);
-                moveDest();
+                moveDest(false);
             }
         } else {
             String string[] = movesList.get(movesListLocation).split("\\s+");
@@ -1106,13 +1139,11 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
             sourceField = chessBoard.getField(srcCol, srcRow);
             destField = chessBoard.getField(destCol, destRow);
+            boardField[sourceField.getColumn() - 1][sourceField.getRow() - 1].setStroke(Color.RED);
+            boardField[destField.getColumn() - 1][destField.getRow() - 1].setStroke(Color.RED);
             chessGame.performMove(sourceField, destField);
-            moveDest();
+            moveDest(false);
         }
-    }
-
-    private void autoMove() {
-
     }
 
     /**
@@ -1160,9 +1191,20 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             output = output + halfMove;
             halfMove = "";
         } else {
+            boolean collision = false;
             moveCounter++;
-            output = output + halfMove;
-            moveLog.appendText(moveCounter + ". " + output + "\n");
+            output = moveCounter + ". " + output + halfMove + "\n";
+            String array[] = moveLog.getText().split("\n");
+            if (!moveLog.getText().isEmpty()) {
+                for (int i = 0; i < array.length; i++) {
+                    if (output.substring(1).trim().equals(array[i].substring(1).trim())) {
+                        collision = true;
+                    }
+                }
+            }
+            if (!collision) {
+                moveLog.appendText(output);
+            }
             output = "";
         }
     }
@@ -1204,6 +1246,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
 
         moveLog.setOnMouseClicked(evt -> {
             if (evt.getButton() == MouseButton.PRIMARY) {
+                int position = -1;
                 Node node = evt.getPickResult().getIntersectedNode();
                 while (node != moveLog) {
                     if (node.getStyleClass().contains("content")) {
@@ -1215,10 +1258,44 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                             break2 = text.length();
                         }
                         moveLog.selectRange(break1, break2);
+                        position = Character.getNumericValue(text.charAt(break1 + 1));
+                        position -= 1;
                         evt.consume();
                         break;
                     }
                     node = node.getParent();
+                }
+                if (position >= 0) {
+                    final int tmp = position;
+                    boolean back;
+                    if (tmp < movesListLocation - 1) {
+                        back = true;
+                    } else {
+                        back = false;
+                    }
+                    periodicAction = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                            if (tmp < movesListLocation - 1) {
+                                white = !white;
+                                doStepBack(false);
+                            } else if (tmp > movesListLocation + 1) {
+                                doStepForward(false);
+                                white = !white;
+                            } else {
+                                if (back) {
+                                    white = !white;
+                                    doStepBack(false);
+                                } else {
+                                    doStepForward(true);
+                                    white = !white;
+                                }
+                                periodicAction.stop();
+                            }
+                        }
+                    }));
+                    periodicAction.setCycleCount(Timeline.INDEFINITE);
+                    periodicAction.play();
                 }
             }
         });
@@ -1341,6 +1418,10 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             }
             output = null;
             halfMove = null;
+            periodicAction.stop();
+            autoON = false;
+            startAuto.setText("START");
+            resetStrokes();
         } else if (event.getSource() == saveGameButton) {
             List<String> save = chessGame.getGameState();
             FileChooser fc = new FileChooser();
@@ -1375,7 +1456,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         } else if (event.getSource() == move) {
             if (sourceField != null && destField != null) {
                 chessGame.performMove(sourceField, destField);
-                moveDest();
+                moveDest(true);
                 white = !white;
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -1386,7 +1467,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
             }
         } else if (event.getSource() == stepForward) {
             if (movesFile != null) {
-                doStepForward();
+                //resetStrokes();
+                doStepForward(true);
                 white = !white;
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -1398,7 +1480,8 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
         } else if (event.getSource() == stepBack) {
             if (movesFile != null) {
                 white = !white;
-                doStepBack();
+                resetStrokes();
+                doStepBack(true);
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Warning!");
@@ -1422,7 +1505,7 @@ public class GameGUI extends Pane implements EventHandler<ActionEvent> {
                         periodicAction = new Timeline(new KeyFrame(Duration.seconds(period / 1000), new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
-                                doStepForward();
+                                doStepForward(true);
                                 white = !white;
                                 if (movesListLocation == movesList.size()) {
                                     periodicAction.stop();

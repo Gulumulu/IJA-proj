@@ -1,12 +1,12 @@
 ﻿*************************************************************************************
-				                  ŠACH
+				    ŠACH
 *************************************************************************************
 
 *************************************************************************************
 Popis hry: 
-Hra Šach je určená pre dvoch hráčov. Hráč má na začiatku hry 16 figúrok bielej alebo 
+Hra Šach je určená pre dvoch hráčov. Hráč má na začiatku hry 16 figúrok, bielej alebo 
 čiernej farby. Prvý je na ťahu hráč s bielymi figúrkami a potom sa hráči pravidelne 
-striedajú. Cielom hry je vyhodiť protihráčovi Kráľa.
+striedajú. Cieľom hry je vyhodiť protihráčovi Kráľa.
 
 **************************************************************************************
 Pravidlá hry:
@@ -43,5 +43,5 @@ ktorý by mohol Kráľa zachrániť, nastáva koniec hry, ktorý sa nazýva "Ša
 
 **************************************************************************************
 Autori: Quirschfeld Gabriel 	(xquirs00) 
-	    Jendrálová Martina	    (xjendr03)
+	Jendrálová Martina	(xjendr03)
 **************************************************************************************

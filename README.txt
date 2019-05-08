@@ -10,7 +10,7 @@ striedajú. Cieľom hry je vyhodiť protihráčovi Kráľa.
 
 **************************************************************************************
 Pravidlá hry:
-V hre sa nachádza 6 typov figúrok. Pešiak, strelec, veža, jazdec, dáma a kráľ. 
+V hre sa nachádza 6 typov figúrok a tie sú: Pešiak, Strelec, Veža, Jazdec, Dáma a Kráľ. 
 Každá figurka má svoj špecifický pohyb:
 
 Pešiak stojaci na mieste pôvodného rozostavenia sa môže posunúť o dve alebo jedno
@@ -19,10 +19,10 @@ vyhadzujúci protihráčovu figúrku sa už neposúva vpred ale do ľava alebo d
 diagonále a to na miesto vyhodenej figurky.
 
 Strelec sa pohybuje po diagonále. Može postúpiť vždy jedným smerom ľubovoľný počet 
-políčok. Strelec umiestnený naa začiatku na čiernnom políčku sa celú hru pohybuje len
+políčok. Strelec umiestnený naa začiatku na čiernom políčku sa celú hru pohybuje len
 po čiernych políčkach, strelec na bielom len po bielych.
 
-Veža sa pohybuje vodorovne alebo zvisle ľubovolný počet políčok, teda v rade alebo v 
+Veža sa pohybuje vodorovne alebo zvisle ľubovoľný počet políčok, teda v rade alebo v 
 stĺpci v ktorom práve stojí.
 
 Jazdec (kôň) sa pohybuje v smere do "L", čo znamená o jedno políčko v tej rade alebo 
